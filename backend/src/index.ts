@@ -4,6 +4,7 @@ import { basicsRoute } from './routes/basics';
 
 const app = new Hono();
 app.use(logger()).onError((err, c) => {
+  console.error(err);
   return c.json(err, 500);
 });
 

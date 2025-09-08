@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SystemPromptsRouteImport } from './routes/system-prompts'
 import { Route as StreamTextToUiRouteImport } from './routes/stream-text-to-ui'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SystemPromptsRoute = SystemPromptsRouteImport.update({
+  id: '/system-prompts',
+  path: '/system-prompts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StreamTextToUiRoute = StreamTextToUiRouteImport.update({
   id: '/stream-text-to-ui',
   path: '/stream-text-to-ui',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
+  '/system-prompts': typeof SystemPromptsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
+  '/system-prompts': typeof SystemPromptsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
+  '/system-prompts': typeof SystemPromptsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/stream-text-to-ui'
+  fullPaths: '/' | '/stream-text-to-ui' | '/system-prompts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/stream-text-to-ui'
-  id: '__root__' | '/' | '/stream-text-to-ui'
+  to: '/' | '/stream-text-to-ui' | '/system-prompts'
+  id: '__root__' | '/' | '/stream-text-to-ui' | '/system-prompts'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   StreamTextToUiRoute: typeof StreamTextToUiRoute
+  SystemPromptsRoute: typeof SystemPromptsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/system-prompts': {
+      id: '/system-prompts'
+      path: '/system-prompts'
+      fullPath: '/system-prompts'
+      preLoaderRoute: typeof SystemPromptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stream-text-to-ui': {
       id: '/stream-text-to-ui'
       path: '/stream-text-to-ui'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   StreamTextToUiRoute: StreamTextToUiRoute,
+  SystemPromptsRoute: SystemPromptsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

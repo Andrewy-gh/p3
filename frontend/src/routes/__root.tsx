@@ -22,7 +22,11 @@ const RootLayout = () => (
               01.6 - Stream text to UI
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link to="/system-prompts" className="[&.active]:font-bold">
+              01.7 - System prompts
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem>Team</DropdownMenuItem>
           <DropdownMenuItem>Subscription</DropdownMenuItem>
         </DropdownMenuContent>
