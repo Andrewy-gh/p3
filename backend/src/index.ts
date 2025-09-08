@@ -10,7 +10,8 @@ app.use(logger()).onError((err, c) => {
 
 export const apiRoutes = app.basePath('/api').route('/basics', basicsRoute);
 
-export default {
+Bun.serve({
   port: 3000,
-  fetch: app.fetch
-};
+  fetch: app.fetch,
+  idleTimeout: 60,
+});
