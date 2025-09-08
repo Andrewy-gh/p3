@@ -12,5 +12,5 @@ export const apiRoutes = app.basePath('/api').route('/basics', basicsRoute);
 
 export default {
   port: 3000,
-  fetch: app.fetch,
+  fetch: app.fetch
 };

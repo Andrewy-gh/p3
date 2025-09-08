@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SystemPromptsRouteImport } from './routes/system-prompts'
 import { Route as StreamTextToUiRouteImport } from './routes/stream-text-to-ui'
+import { Route as PassingImagsAndFilesRouteImport } from './routes/passing-imags-and-files'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SystemPromptsRoute = SystemPromptsRouteImport.update({
@@ -23,6 +24,11 @@ const StreamTextToUiRoute = StreamTextToUiRouteImport.update({
   path: '/stream-text-to-ui',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PassingImagsAndFilesRoute = PassingImagsAndFilesRouteImport.update({
+  id: '/passing-imags-and-files',
+  path: '/passing-imags-and-files',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,47 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/stream-text-to-ui' | '/system-prompts'
+  fullPaths:
+    | '/'
+    | '/passing-imags-and-files'
+    | '/stream-text-to-ui'
+    | '/system-prompts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/stream-text-to-ui' | '/system-prompts'
-  id: '__root__' | '/' | '/stream-text-to-ui' | '/system-prompts'
+  to:
+    | '/'
+    | '/passing-imags-and-files'
+    | '/stream-text-to-ui'
+    | '/system-prompts'
+  id:
+    | '__root__'
+    | '/'
+    | '/passing-imags-and-files'
+    | '/stream-text-to-ui'
+    | '/system-prompts'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PassingImagsAndFilesRoute: typeof PassingImagsAndFilesRoute
   StreamTextToUiRoute: typeof StreamTextToUiRoute
   SystemPromptsRoute: typeof SystemPromptsRoute
 }
@@ -75,6 +98,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StreamTextToUiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/passing-imags-and-files': {
+      id: '/passing-imags-and-files'
+      path: '/passing-imags-and-files'
+      fullPath: '/passing-imags-and-files'
+      preLoaderRoute: typeof PassingImagsAndFilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +117,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PassingImagsAndFilesRoute: PassingImagsAndFilesRoute,
   StreamTextToUiRoute: StreamTextToUiRoute,
   SystemPromptsRoute: SystemPromptsRoute,
 }

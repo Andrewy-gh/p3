@@ -27,7 +27,14 @@ const RootLayout = () => (
               01.7 - System prompts
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>Team</DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link
+              to="/passing-imags-and-files"
+              className="[&.active]:font-bold"
+            >
+              01.8 - Passing images and files
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem>Subscription</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
