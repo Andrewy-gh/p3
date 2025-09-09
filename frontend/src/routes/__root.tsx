@@ -35,7 +35,17 @@ const RootLayout = () => (
               01.8 - Passing images and files
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>Subscription</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <span>•</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger>02 - Naive Agents</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            <Link to="/tool-calling" className="[&.active]:font-bold">
+              02.1 - Tool Calling
+            </Link>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <span>•</span>

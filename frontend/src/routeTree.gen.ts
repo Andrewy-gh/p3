@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ToolCallingRouteImport } from './routes/tool-calling'
 import { Route as SystemPromptsRouteImport } from './routes/system-prompts'
 import { Route as StreamTextToUiRouteImport } from './routes/stream-text-to-ui'
 import { Route as PassingImagsAndFilesRouteImport } from './routes/passing-imags-and-files'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ToolCallingRoute = ToolCallingRouteImport.update({
+  id: '/tool-calling',
+  path: '/tool-calling',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SystemPromptsRoute = SystemPromptsRouteImport.update({
   id: '/system-prompts',
   path: '/system-prompts',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
+  '/tool-calling': typeof ToolCallingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
+  '/tool-calling': typeof ToolCallingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,6 +61,7 @@ export interface FileRoutesById {
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
+  '/tool-calling': typeof ToolCallingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -61,18 +70,21 @@ export interface FileRouteTypes {
     | '/passing-imags-and-files'
     | '/stream-text-to-ui'
     | '/system-prompts'
+    | '/tool-calling'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/passing-imags-and-files'
     | '/stream-text-to-ui'
     | '/system-prompts'
+    | '/tool-calling'
   id:
     | '__root__'
     | '/'
     | '/passing-imags-and-files'
     | '/stream-text-to-ui'
     | '/system-prompts'
+    | '/tool-calling'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,10 +92,18 @@ export interface RootRouteChildren {
   PassingImagsAndFilesRoute: typeof PassingImagsAndFilesRoute
   StreamTextToUiRoute: typeof StreamTextToUiRoute
   SystemPromptsRoute: typeof SystemPromptsRoute
+  ToolCallingRoute: typeof ToolCallingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tool-calling': {
+      id: '/tool-calling'
+      path: '/tool-calling'
+      fullPath: '/tool-calling'
+      preLoaderRoute: typeof ToolCallingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/system-prompts': {
       id: '/system-prompts'
       path: '/system-prompts'
@@ -120,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   PassingImagsAndFilesRoute: PassingImagsAndFilesRoute,
   StreamTextToUiRoute: StreamTextToUiRoute,
   SystemPromptsRoute: SystemPromptsRoute,
+  ToolCallingRoute: ToolCallingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
