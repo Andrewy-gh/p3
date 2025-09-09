@@ -1,8 +1,60 @@
-import { tool, type UIMessage, type InferUITools, type UIDataTypes } from 'ai';
+import { tool, type UIMessage, type InferUITools, type UIDataTypes, generateText, Output } from 'ai';
 import { z } from 'zod';
 import * as fsTools from './file-system-functionality';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 export type MyUIMessage = UIMessage<never, never, InferUITools<typeof tools>>;
+export type WorkoutUIMessage = UIMessage<
+  never,
+  never,
+  InferUITools<typeof workoutTools>
+>;
+
+export const WorkoutSetInputSchema = z.object({
+  reps: z.number(),
+  setType: z.enum(['warmup', 'working']),
+  weight: z.number().optional(),
+});
+
+export const WorkoutExerciseInputSchema = z.object({
+  name: z.string(),
+  sets: z.array(WorkoutSetInputSchema),
+});
+
+export const WorkoutCreateWorkoutRequestSchema = z.object({
+  date: z.string(),
+  exercises: z.array(WorkoutExerciseInputSchema),
+  notes: z.string().optional(),
+  workoutFocus: z.string().optional(),
+});
+
+export const workoutTools = {
+  generateWorkout: tool({
+    description: 'Generate a workout plan',
+    inputSchema: z.object({
+      age: z.number().describe('The age of the person'),
+      gender: z.string().describe('The gender of the person'),
+      fitnessLevel: z.string().describe('The fitness level of the person'),
+      goals: z.string().describe('The goals of the person'),
+    }),
+    execute: async ({ age, gender, fitnessLevel, goals }) => {
+      const google = createGoogleGenerativeAI({
+        apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+      });
+      const model = google('gemini-2.0-flash');
+      const prompt = `Generate a workout plan for a ${age} year old ${gender} with fitness level ${fitnessLevel} and goals ${goals}`;
+      const {experimental_output} = await generateText({
+        model,
+        prompt,
+        experimental_output: Output.object({
+          schema: WorkoutCreateWorkoutRequestSchema,
+        }),
+      });
+      return experimental_output;
+      // return `Workout plan generated for ${age} year old ${gender} with fitness level ${fitnessLevel} and goals ${goals}`;
+    },
+  }),
+};
 
 export const tools = {
   writeFile: tool({

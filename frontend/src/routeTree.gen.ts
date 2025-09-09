@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolCallingRouteImport } from './routes/tool-calling'
 import { Route as SystemPromptsRouteImport } from './routes/system-prompts'
 import { Route as StreamTextToUiRouteImport } from './routes/stream-text-to-ui'
+import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as PassingImagsAndFilesRouteImport } from './routes/passing-imags-and-files'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -30,6 +31,11 @@ const StreamTextToUiRoute = StreamTextToUiRouteImport.update({
   path: '/stream-text-to-ui',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlaygroundRoute = PlaygroundRouteImport.update({
+  id: '/playground',
+  path: '/playground',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PassingImagsAndFilesRoute = PassingImagsAndFilesRouteImport.update({
   id: '/passing-imags-and-files',
   path: '/passing-imags-and-files',
@@ -44,6 +50,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
+  '/playground': typeof PlaygroundRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
   '/tool-calling': typeof ToolCallingRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
+  '/playground': typeof PlaygroundRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
   '/tool-calling': typeof ToolCallingRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
+  '/playground': typeof PlaygroundRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
   '/system-prompts': typeof SystemPromptsRoute
   '/tool-calling': typeof ToolCallingRoute
@@ -68,6 +77,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/passing-imags-and-files'
+    | '/playground'
     | '/stream-text-to-ui'
     | '/system-prompts'
     | '/tool-calling'
@@ -75,6 +85,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/passing-imags-and-files'
+    | '/playground'
     | '/stream-text-to-ui'
     | '/system-prompts'
     | '/tool-calling'
@@ -82,6 +93,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/passing-imags-and-files'
+    | '/playground'
     | '/stream-text-to-ui'
     | '/system-prompts'
     | '/tool-calling'
@@ -90,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PassingImagsAndFilesRoute: typeof PassingImagsAndFilesRoute
+  PlaygroundRoute: typeof PlaygroundRoute
   StreamTextToUiRoute: typeof StreamTextToUiRoute
   SystemPromptsRoute: typeof SystemPromptsRoute
   ToolCallingRoute: typeof ToolCallingRoute
@@ -118,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StreamTextToUiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/playground': {
+      id: '/playground'
+      path: '/playground'
+      fullPath: '/playground'
+      preLoaderRoute: typeof PlaygroundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/passing-imags-and-files': {
       id: '/passing-imags-and-files'
       path: '/passing-imags-and-files'
@@ -138,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PassingImagsAndFilesRoute: PassingImagsAndFilesRoute,
+  PlaygroundRoute: PlaygroundRoute,
   StreamTextToUiRoute: StreamTextToUiRoute,
   SystemPromptsRoute: SystemPromptsRoute,
   ToolCallingRoute: ToolCallingRoute,

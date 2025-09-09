@@ -14,6 +14,10 @@ const RootLayout = () => (
         Home
       </Link>
       <span>•</span>
+      <Link to="/playground" className="[&.active]:font-bold">
+        Playground
+      </Link>
+      <span>•</span>
       <DropdownMenu>
         <DropdownMenuTrigger>01 - Basics</DropdownMenuTrigger>
         <DropdownMenuContent>
