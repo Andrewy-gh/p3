@@ -1,6 +1,6 @@
 import { tool, type UIMessage, type InferUITools, type UIDataTypes, generateText, Output } from 'ai';
 import { z } from 'zod';
-import * as fsTools from './file-system-functionality';
+import * as fsTools from './file-system-functionality.js';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 export type MyUIMessage = UIMessage<never, never, InferUITools<typeof tools>>;
