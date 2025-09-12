@@ -4,7 +4,7 @@ This document outlines the comprehensive evaluation strategy for the workout gen
 
 ## Overview
 
-The `/v2` endpoint (`src/routes/playground.ts:53-77`) generates personalized workout plans using the `generateWorkout` tool with a 10-step limit (`stepCountIs(10)`). These evaluations focus on deterministic validation of output quality, safety, and adherence to specifications.
+The `/v2` endpoint (`src/routes/playground.ts:53-77`) generates personalized workout plans using the `generateWorkout` tool with a 10-step limit (`stepCountIs(10)`). The tool uses `experimental_output: Output.object()` to return structured JSON objects conforming to `WorkoutCreateWorkoutRequestSchema`. These evaluations focus on deterministic validation of output quality, safety, and adherence to specifications.
 
 ## Evaluation Categories
 
@@ -14,13 +14,13 @@ The `/v2` endpoint (`src/routes/playground.ts:53-77`) generates personalized wor
 
 **Test Cases**:
 - **JSON Schema Validation**: Validate strict conformance to `WorkoutCreateWorkoutRequestSchema` with no extra fields, correct enums (`warmup`/`working`), and proper optional weight behavior
-- **Tag Format Enforcement**: Assert exactly two blocks in order: `<summary>...</summary>` and `<workout>...</workout>` with no external content
-- **Serialization Stress Testing**: Test with special characters in exercise names (quotes, commas, unicode, emoji) to ensure valid JSON serialization
-- **No Code Fences**: Ensure responses don't contain markdown code blocks or YAML formatting
+- **Required Field Validation**: Ensure `exercises` array is present with valid `name` and `sets` structures
+- **Optional Field Handling**: Verify `notes` and `workoutFocus` are handled correctly when present/absent
+- **Data Type Enforcement**: Check `reps` are numbers, `setType` enums, optional `weight` numbers
 
 **Scoring Criteria**:
-- % valid JSON: count outputs that parse and pass schema validation
-- % tag compliance: fraction with exactly two blocks in correct order
+- % valid schema: outputs that pass `WorkoutCreateWorkoutRequestSchema` validation
+- % complete structure: outputs with all required fields and valid data types
 - Pass threshold: ≥95% for both metrics
 
 ### 2. Safety and Feasibility
@@ -99,11 +99,10 @@ The `/v2` endpoint (`src/routes/playground.ts:53-77`) generates personalized wor
 **Purpose**: Test system resilience against adversarial inputs and edge cases.
 
 **Test Cases**:
-- **Adversarial Prompt Compliance**:
-  - Prompts trying to force YAML output
-  - Attempts to add extra JSON fields
-  - Requests for free-form commentary
-  - System must return only `<summary>` and `<workout>` tags
+- **Schema Enforcement**:
+  - Adversarial prompts trying to add extra fields beyond schema
+  - Attempts to change data types or structure
+  - System must return only valid `WorkoutCreateWorkoutRequestSchema` objects
 - **Exercise Name Stress Testing**:
   - Uncommon exercise names (Jefferson deadlift, Z-press, Cossack squat)
   - Special characters and parentheses
@@ -111,8 +110,8 @@ The `/v2` endpoint (`src/routes/playground.ts:53-77`) generates personalized wor
   - Unicode and emoji in exercise descriptions
 
 **Scoring Criteria**:
-- Adversarial resistance: 100% compliance with format requirements
-- Name handling: valid JSON serialization regardless of exercise name complexity
+- Schema enforcement: 100% compliance with `WorkoutCreateWorkoutRequestSchema`
+- Name handling: valid schema compliance regardless of exercise name complexity
 
 ## Implementation Framework
 
@@ -149,18 +148,16 @@ interface EvalCase {
 ### Automated Scoring Pipeline
 
 For each test case:
-1. Extract and verify tag format
-2. Parse and validate JSON schema (final response only)
-3. Check equipment feasibility per exercise
-4. Verify warmup/working set ordering and counts
-5. Compute goal rep-distribution score
-6. Estimate total session time vs declared cap
-7. If injuries present, assert substitutions and safety notes
-8. If required inputs missing, assert follow-up gating behavior
+1. Validate output object against `WorkoutCreateWorkoutRequestSchema` using Zod
+2. Check equipment feasibility per exercise
+3. Verify warmup/working set ordering and counts
+4. Compute goal rep-distribution score
+5. Estimate total session time vs declared cap
+6. If injuries present, assert substitutions and safety notes
+7. If required inputs missing, assert follow-up gating behavior
 
 ### Pass Criteria Summary
-- **JSON Validation**: ≥95% valid schema compliance
-- **Format Compliance**: 100% correct tag structure
+- **Schema Validation**: ≥95% valid `WorkoutCreateWorkoutRequestSchema` compliance
 - **Equipment Feasibility**: ≥95% mean feasibility score
 - **Goal Alignment**: ≥70% of working sets in target ranges
 - **Time Feasibility**: ≥90% of plans within time + 10% slack
