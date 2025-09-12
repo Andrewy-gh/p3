@@ -172,10 +172,10 @@ For each test case:
 
 ### File Structure
 ```
-docs/evalite/
+src/evals/
 ├── workout-structured-output.eval.ts
 ├── workout-safety-feasibility.eval.ts
-├── workout-behavior.eval.ts
+├── workout-behavior.eval.ts (✓ In Progress - Adversarial Prompt Resistance complete)
 ├── workout-robustness.eval.ts
 └── workout-integration.eval.ts
 ```
@@ -207,7 +207,8 @@ docs/evalite/
 - [ ] Implement injury handling validation
 
 ### Behavior and Instruction Following Tests
-- [ ] Create `workout-behavior.eval.ts`
+- [X] Create `workout-behavior.eval.ts`
+- [X] Implement adversarial prompt resistance tests (non-fitness question refusal)
 - [ ] Implement missing info gating tests
 - [ ] Add multi-turn conversation history integration tests
 - [ ] Create test cases for partial information scenarios
