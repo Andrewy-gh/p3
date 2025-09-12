@@ -5,38 +5,40 @@ equipment. This is needed for the equipment feasibility checks in your evaluatio
 
 Based on your eval guidelines, it would look something like this:
 
+```ts
 interface ExerciseMapping {
-name: string;
-minimalEquipment: string[];
-spaceRequirement: 'minimal' | 'moderate' | 'large';
-alternatives?: string[];
+  name: string;
+  minimalEquipment: string[];
+  spaceRequirement: 'minimal' | 'moderate' | 'large';
+  alternatives?: string[];
 }
 
 const exerciseDatabase: ExerciseMapping[] = [
-{
-name: "Barbell Bench Press",
-minimalEquipment: ["barbell", "bench", "rack"],
-spaceRequirement: "large",
-alternatives: ["Dumbbell Bench Press", "Push-ups"]
-},
-{
-name: "Pull-ups",
-minimalEquipment: ["pull-up-bar"],
-spaceRequirement: "moderate",
-alternatives: ["Lat Pulldown", "Dumbbell Rows"]
-},
-{
-name: "Dumbbell Rows",
-minimalEquipment: ["dumbbells"],
-spaceRequirement: "minimal"
-},
-{
-name: "Push-ups",
-minimalEquipment: ["bodyweight"],
-spaceRequirement: "minimal"
-}
-// ... hundreds more exercises
+  {
+    name: 'Barbell Bench Press',
+    minimalEquipment: ['barbell', 'bench', 'rack'],
+    spaceRequirement: 'large',
+    alternatives: ['Dumbbell Bench Press', 'Push-ups'],
+  },
+  {
+    name: 'Pull-ups',
+    minimalEquipment: ['pull-up-bar'],
+    spaceRequirement: 'moderate',
+    alternatives: ['Lat Pulldown', 'Dumbbell Rows'],
+  },
+  {
+    name: 'Dumbbell Rows',
+    minimalEquipment: ['dumbbells'],
+    spaceRequirement: 'minimal',
+  },
+  {
+    name: 'Push-ups',
+    minimalEquipment: ['bodyweight'],
+    spaceRequirement: 'minimal',
+  },
+  // ... hundreds more exercises
 ];
+```
 
 This allows your eval tests to:
 
@@ -51,3 +53,7 @@ Your eval guidelines mention using "a small curated exercise-to-equipment map se
 
 The database would be used in your evalite scorers to automatically validate that every exercise in a generated
 workout is feasible with the user's declared equipment and space constraints.
+
+```
+
+```
