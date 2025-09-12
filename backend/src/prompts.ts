@@ -60,7 +60,6 @@ Here are important rules for workout generation:
     {
       "summary": string,
       "workout": {
-          "date": string,
           "exercises": Array<{
             "name": string,
             "sets": Array<{
@@ -73,7 +72,6 @@ Here are important rules for workout generation:
           "workoutFocus"?: string
         }
     }
-  - Use today's date for "date" unless the user specifies another date.
   - Equipment feasibility requirements:
     * Only prescribe exercises feasible with declared equipment (bodyweight, dumbbells, barbell+rack, machines, cables, bands)
     * Space constraints: hotel room/small space = no barbell or large machines

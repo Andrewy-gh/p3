@@ -15,8 +15,8 @@ const SummaryComponent = ({ content }: { content: string }) => (
   </div>
 );
 
-const WorkoutComponent = ({ content }: { content: string }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const WorkoutComponent = ({ content }: { content: string }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
 
   try {
     const workout = JSON.parse(content.trim());
@@ -27,49 +27,106 @@ const WorkoutComponent = ({ content }: { content: string }) => {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-400 rounded-full"></div>
             <span className="text-green-300 font-medium text-sm uppercase tracking-wide">
-              Workout Plan
+              🏋️ Your Workout Plan
             </span>
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-green-300 hover:text-green-200 text-sm"
+            className="text-green-300 hover:text-green-200 text-sm px-2 py-1 rounded border border-green-700 hover:border-green-600 transition-colors"
           >
             {isExpanded ? 'Collapse' : 'Expand'}
           </button>
         </div>
 
         <div className="text-gray-200">
-          <h3 className="font-semibold text-lg mb-2">{workout.workoutFocus}</h3>
+          {workout.workoutFocus && (
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-green-400 font-medium">Focus:</span>
+              <span className="bg-green-800/50 px-2 py-1 rounded text-sm font-medium">
+                {workout.workoutFocus}
+              </span>
+            </div>
+          )}
 
           {isExpanded && (
             <div className="space-y-4">
-              <div className="grid gap-3">
-                {workout.exercises.map((exercise: any, idx: number) => (
-                  <div key={idx} className="bg-black/20 rounded p-3">
-                    <h4 className="font-medium text-green-200 mb-2">
-                      {exercise.name}
-                    </h4>
-                    <div className="flex gap-2 flex-wrap">
-                      {exercise.sets.map((set: any, setIdx: number) => (
-                        <span
-                          key={setIdx}
-                          className="bg-green-800/50 px-2 py-1 rounded text-sm"
-                        >
-                          {set.reps} reps
-                        </span>
-                      ))}
+              <div className="grid gap-4">
+                {workout.exercises.map((exercise: any, idx: number) => {
+                  const warmupSets = exercise.sets.filter((set: any) => set.setType === 'warmup');
+                  const workingSets = exercise.sets.filter((set: any) => set.setType === 'working');
+                  
+                  return (
+                    <div key={idx} className="bg-black/20 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-semibold text-green-200 mb-3 text-lg">
+                        {idx + 1}. {exercise.name}
+                      </h4>
+                      
+                      {warmupSets.length > 0 && (
+                        <div className="mb-3">
+                          <h5 className="text-orange-300 font-medium text-sm mb-2 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-orange-400 rounded-full"></span>
+                            Warmup Sets
+                          </h5>
+                          <div className="flex gap-2 flex-wrap">
+                            {warmupSets.map((set: any, setIdx: number) => (
+                              <div
+                                key={setIdx}
+                                className="bg-orange-800/30 border border-orange-700 px-3 py-2 rounded text-sm flex items-center gap-2"
+                              >
+                                <span className="font-mono">{set.reps} reps</span>
+                                {set.weight && (
+                                  <span className="text-orange-300">@ {set.weight} lbs</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {workingSets.length > 0 && (
+                        <div>
+                          <h5 className="text-green-300 font-medium text-sm mb-2 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                            Working Sets
+                          </h5>
+                          <div className="flex gap-2 flex-wrap">
+                            {workingSets.map((set: any, setIdx: number) => (
+                              <div
+                                key={setIdx}
+                                className="bg-green-800/40 border border-green-600 px-3 py-2 rounded text-sm flex items-center gap-2 font-medium"
+                              >
+                                <span className="font-mono">{set.reps} reps</span>
+                                {set.weight && (
+                                  <span className="text-green-300">@ {set.weight} lbs</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {workout.notes && (
-                <div className="bg-yellow-900/30 border border-yellow-700 rounded p-3">
-                  <p className="text-yellow-200 text-sm">
-                    <strong>Notes:</strong> {workout.notes}
+                <div className="bg-blue-900/30 border border-blue-600 rounded-lg p-4">
+                  <h5 className="text-blue-300 font-medium text-sm mb-2 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
+                    Coach Notes
+                  </h5>
+                  <p className="text-blue-100 text-sm leading-relaxed">
+                    {workout.notes}
                   </p>
                 </div>
               )}
+
+              <div className="flex gap-4 text-xs text-gray-400 pt-2 border-t border-gray-700">
+                <span>Total Exercises: {workout.exercises.length}</span>
+                <span>
+                  Total Sets: {workout.exercises.reduce((acc: number, ex: any) => acc + ex.sets.length, 0)}
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -81,10 +138,10 @@ const WorkoutComponent = ({ content }: { content: string }) => {
         <div className="flex items-center gap-2 mb-2">
           <div className="w-2 h-2 bg-red-400 rounded-full"></div>
           <span className="text-red-300 font-medium text-sm">
-            Workout Data (Raw)
+            ⚠️ Workout Data (Raw)
           </span>
         </div>
-        <pre className="text-gray-300 text-sm overflow-x-auto">{content}</pre>
+        <pre className="text-gray-300 text-sm overflow-x-auto bg-black/20 p-2 rounded">{content}</pre>
       </div>
     );
   }

@@ -30,7 +30,6 @@ export const WorkoutExerciseInputSchema = z.object({
 });
 
 export const WorkoutCreateWorkoutRequestSchema = z.object({
-  date: z.string(),
   exercises: z.array(WorkoutExerciseInputSchema),
   notes: z.string().optional(),
   workoutFocus: z.string().optional(),
