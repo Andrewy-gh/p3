@@ -1,7 +1,15 @@
-import { tool, type UIMessage, type InferUITools, type UIDataTypes, generateText, Output } from 'ai';
+import {
+  tool,
+  type UIMessage,
+  type InferUITools,
+  type UIDataTypes,
+  generateText,
+  Output,
+} from 'ai';
 import { z } from 'zod';
 import * as fsTools from './file-system-functionality.js';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { WORKOUT_GENERATION_PROMPT } from './prompts.js';
 
 export type MyUIMessage = UIMessage<never, never, InferUITools<typeof tools>>;
 export type WorkoutUIMessage = UIMessage<
@@ -30,28 +38,72 @@ export const WorkoutCreateWorkoutRequestSchema = z.object({
 
 export const workoutTools = {
   generateWorkout: tool({
-    description: 'Generate a workout plan',
+    description:
+      'Generate a personalized workout plan based on user requirements',
     inputSchema: z.object({
-      age: z.number().describe('The age of the person'),
-      gender: z.string().describe('The gender of the person'),
-      fitnessLevel: z.string().describe('The fitness level of the person'),
-      goals: z.string().describe('The goals of the person'),
+      fitnessLevel: z
+        .string()
+        .describe('The fitness level (beginner, intermediate, advanced)'),
+      fitnessGoal: z
+        .string()
+        .describe(
+          'Primary fitness goal (strength, hypertrophy, endurance, power, general fitness)'
+        ),
+      equipment: z
+        .string()
+        .describe(
+          'Available equipment (bodyweight, dumbbells, barbell+rack, machines, cables, bands, etc.)'
+        ),
+      sessionDuration: z.number().describe('Available workout time in minutes'),
+      workoutFocus: z
+        .string()
+        .describe(
+          'Workout focus (push/pull/legs, full body, specific muscle groups, etc.)'
+        ),
+      spaceConstraints: z
+        .string()
+        .describe(
+          'Space/location constraints (home, gym, hotel room, outdoor, etc.)'
+        ),
+      injuries: z
+        .string()
+        .optional()
+        .describe('Any current injuries or pain to work around'),
     }),
-    execute: async ({ age, gender, fitnessLevel, goals }) => {
+    execute: async ({
+      fitnessLevel,
+      fitnessGoal,
+      equipment,
+      sessionDuration,
+      workoutFocus,
+      spaceConstraints,
+      injuries,
+    }) => {
       const google = createGoogleGenerativeAI({
         apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
       });
       const model = google('gemini-2.0-flash');
-      const prompt = `Generate a workout plan for a ${age} year old ${gender} with fitness level ${fitnessLevel} and goals ${goals}`;
-      const {experimental_output} = await generateText({
+
+      const userInfo = `
+        User Profile:
+        - Fitness Level: ${fitnessLevel}
+        - Primary Goal: ${fitnessGoal}
+        - Available Equipment: ${equipment}
+        - Session Duration: ${sessionDuration} minutes
+        - Workout Focus: ${workoutFocus}
+        - Space/Location: ${spaceConstraints}
+        ${injuries ? `- Injuries/Pain: ${injuries}` : '- No injuries reported'}
+      `;
+
+      const { experimental_output } = await generateText({
         model,
-        prompt,
+        system: WORKOUT_GENERATION_PROMPT(userInfo),
+        prompt: userInfo,
         experimental_output: Output.object({
           schema: WorkoutCreateWorkoutRequestSchema,
         }),
       });
       return experimental_output;
-      // return `Workout plan generated for ${age} year old ${gender} with fitness level ${fitnessLevel} and goals ${goals}`;
     },
   }),
 };

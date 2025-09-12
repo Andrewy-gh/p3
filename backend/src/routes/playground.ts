@@ -12,7 +12,7 @@ import {
 } from 'ai';
 // import { z } from 'zod';
 import { workoutTools } from '../tools.js';
-import { SYSTEM_PROMPT } from '../prompts.js';
+import { CHAT_AGENT_PROMPT, WORKOUT_GENERATION_PROMPT } from '../prompts.js';
 
 export const playgroundRoute = new Hono<{
   Variables: GoogleGenerativeAIContext;
@@ -35,8 +35,8 @@ export const playgroundRoute = new Hono<{
       const streamTextResult = streamText({
         model,
         messages: modelMessages,
-        system: SYSTEM_PROMPT,
-        // tools: workoutTools,
+        system: CHAT_AGENT_PROMPT,
+        tools: workoutTools,
         // stopWhen: [stepCountIs(10)],
       });
 
@@ -50,3 +50,28 @@ export const playgroundRoute = new Hono<{
       throw new Error('Playground route - system prompts error');
     }
   })
+  .post('/v2', googleGenerativeAIMiddleware, async (c) => {
+    try {
+      const model = c.var.google('gemini-2.0-flash');
+      const body = await c.req.json();
+      const messages: Array<UIMessage> = body.messages;
+      const modelMessages: Array<ModelMessage> =
+        convertToModelMessages(messages);
+      const streamTextResult = streamText({
+        model,
+        messages: modelMessages,
+        system: CHAT_AGENT_PROMPT,
+        tools: workoutTools,
+        stopWhen: [stepCountIs(10)],
+      });
+
+      const stream = streamTextResult.toUIMessageStream();
+
+      return createUIMessageStreamResponse({
+        stream,
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Playground route - system prompts error');
+    }
+  });
