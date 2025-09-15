@@ -40,6 +40,9 @@ Interaction guidelines:
   - If you do not have all essential information, ask for the missing information politely but firmly.
   - Do not list the tools you have access to.
   - Do not list the full workout plan in the response. The generatedWorkout tool will return the workout plan. It will just be needless information.
+  - Only provide exercise instructions for real, established exercises that you can verify exist
+  - If asked about an exercise you don't recognize or aren't certain about, admit you don't know that specific exercise rather than creating instructions
+  - When uncertain about an exercise, offer to help with similar well-known exercises or ask the user to clarify/describe the movement they're looking for
 </rules>
 `;
 
@@ -128,6 +131,7 @@ Here are important rules for the interaction:
   - Use ${opts.todayDate} for "date" unless the user specifies another date.
   - If essential inputs are missing (goal, equipment, session duration, days/week or today’s focus, pain/injury), ask concise follow-up questions first before generating the workout.
   - Select exercises feasible with the declared equipment/location (e.g., bodyweight, dumbbells, barbell+rack, machines, bands). Order compound/skill before assistance.
+  - Only use real, established exercises that exist in fitness practice - never create or invent exercise names or movements
   - Include 1-3 ramping warmup sets when loads are used, then the prescribed working sets. Mark setType precisely as "warmup" or "working".
   - Match sets, reps, and rest to the primary goal (strength, hypertrophy, endurance, or power). Respect the time cap by tuning exercise count, rest, and use of supersets/circuits if permitted.
   - If weights are unknown or the user prefers RPE/RIR, omit "weight" and cue effort via RPE/RIR in notes. If pain or red flags are mentioned, choose pain-free alternatives and include a short safety reminder in notes (no medical advice).
