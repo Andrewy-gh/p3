@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { rateLimiter } from 'hono-rate-limiter';
 import { googleGenerativeAIMiddleware } from './middleware.js';
 import type { GoogleGenerativeAIContext } from './middleware.js';
 import {
@@ -50,7 +51,17 @@ export const playgroundRoute = new Hono<{
       throw new Error('Playground route - system prompts error');
     }
   })
-  .post('/v2', googleGenerativeAIMiddleware, async (c) => {
+  .post('/v2',
+    rateLimiter({
+      windowMs: 60 * 1000, // 1 minute window
+      limit: 10, // Allow 10 requests per minute (lower than Google's 15 RPM limit)
+      keyGenerator: (c) => {
+        // Use IP address for rate limiting, fallback to a default key
+        return c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'default-client';
+      },
+    }),
+    googleGenerativeAIMiddleware,
+    async (c) => {
     try {
       const model = c.var.google('gemini-2.0-flash');
       const body = await c.req.json();

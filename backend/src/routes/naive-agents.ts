@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
-import { googleGenerativeAIMiddleware } from './middleware';
-import type { GoogleGenerativeAIContext } from './middleware';
+import { googleGenerativeAIMiddleware } from './middleware.js';
+import type { GoogleGenerativeAIContext } from './middleware.js';
 import { convertToModelMessages, stepCountIs, streamText } from 'ai';
-import { tools } from '../tools';
+import { tools } from '../tools.js';
 
 export const naiveAgentsRoute = new Hono<{
   Variables: GoogleGenerativeAIContext;
