@@ -127,12 +127,13 @@ export const ToolOutput = ({
 
   let Output = <div>{output as ReactNode}</div>;
 
-  if (typeof output === "object") {
+  if (typeof output === "string") {
+    Output = <CodeBlock code={output} language="json" />;
+  } else if (typeof output === "object" && !("$$typeof" in output)) {
+    // Only JSON.stringify plain objects, not React elements
     Output = (
       <CodeBlock code={JSON.stringify(output, null, 2)} language="json" />
     );
-  } else if (typeof output === "string") {
-    Output = <CodeBlock code={output} language="json" />;
   }
 
   return (
