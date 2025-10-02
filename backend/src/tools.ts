@@ -38,7 +38,7 @@ export const WorkoutCreateWorkoutRequestSchema = z.object({
 export const workoutTools = {
   generateWorkout: tool({
     description:
-      'Generate a personalized workout plan based on user requirements',
+      'Creates and displays a personalized workout plan. Call this when you have: fitness level, goal, equipment, session duration, workout focus, space/location, and injury status. This displays the workout to the user.',
     inputSchema: z.object({
       fitnessLevel: z
         .string()
