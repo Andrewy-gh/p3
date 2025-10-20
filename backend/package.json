@@ -7,6 +7,7 @@
     "start": "bun run --hot --env-file=.env.local src/index.ts",
     "script": "bun run --hot --env-file=.env.local src/evals/1.ts",
     "eval:dev": "bun run --env-file=.env.local evalite watch",
+    "eval:run": "bun run --env-file=.env.local evalite src/evals/tool-calling-reliability.eval.ts",
     "main": "bun run --hot src/main.ts",
     "test": "bun test",
     "tsc": "tsc --noEmit"
@@ -16,7 +17,7 @@
     "@hono/zod-validator": "^0.7.2",
     "ai": "^5.0.35",
     "autoevals": "^0.0.131",
-    "evalite": "^0.11.5",
+    "evalite": "^0.11.6",
     "hono": "^4.9.6",
     "hono-rate-limiter": "^0.4.2",
     "vitest": "^3.2.4",
