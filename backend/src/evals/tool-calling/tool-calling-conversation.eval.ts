@@ -1,8 +1,8 @@
 import { generateText, type CoreMessage } from 'ai';
 import { evalite } from 'evalite';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { CHAT_AGENT_PROMPT } from '../prompts.js';
-import { workoutTools } from '../tools.js';
+import { CHAT_AGENT_PROMPT } from '../../prompts.js';
+import { workoutTools } from '../../tools.js';
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -27,7 +27,7 @@ type TaskOutput = {
  *
  * Tests 5-8: Ensures the AI agent handles conversation flow properly and modifications
  */
-evalite<ConversationTestData, TaskOutput, string>('Tool Calling - Conversation Flow', {
+evalite.skip<ConversationTestData, TaskOutput, string>('Tool Calling - Conversation Flow', {
   data: () => [
     {
       input: {

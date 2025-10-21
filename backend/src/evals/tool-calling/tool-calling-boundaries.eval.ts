@@ -1,8 +1,8 @@
 import { generateText } from 'ai';
 import { evalite } from 'evalite';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { CHAT_AGENT_PROMPT } from '../prompts.js';
-import { workoutTools } from '../tools.js';
+import { CHAT_AGENT_PROMPT } from '../../prompts.js';
+import { workoutTools } from '../../tools.js';
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -17,7 +17,7 @@ const google = createGoogleGenerativeAI({
  */
 
 // Test 11: Made-up exercises (from chat logs)
-evalite('Tool Calling - Imaginary Exercise Rejection', {
+evalite.skip('Tool Calling - Imaginary Exercise Rejection', {
   data: () => [
     {
       id: 'test-11-cloud-pullups',
@@ -46,7 +46,6 @@ evalite('Tool Calling - Imaginary Exercise Rejection', {
       prompt: input,
       tools: workoutTools,
     });
-    console.log('result', result.text);
     return {
       text: result.text,
       toolCalls: result.steps

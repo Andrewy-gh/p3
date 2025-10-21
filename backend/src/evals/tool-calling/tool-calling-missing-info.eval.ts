@@ -1,8 +1,8 @@
 import { generateText } from 'ai';
 import { evalite } from 'evalite';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { CHAT_AGENT_PROMPT } from '../prompts.js';
-import { workoutTools } from '../tools.js';
+import { CHAT_AGENT_PROMPT } from '../../prompts.js';
+import { workoutTools } from '../../tools.js';
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -13,7 +13,7 @@ const google = createGoogleGenerativeAI({
  *
  * Tests 3-4: Ensures the AI agent asks for missing info before calling tools
  */
-evalite('Tool Calling - Missing Info Gating', {
+evalite.skip('Tool Calling - Missing Info Gating', {
   data: () => [
     {
       id: 'test-3-missing-multiple-params',

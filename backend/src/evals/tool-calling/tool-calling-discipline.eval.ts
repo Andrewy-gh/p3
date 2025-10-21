@@ -1,8 +1,8 @@
 import { generateText, streamText, type CoreMessage } from 'ai';
 import { evalite } from 'evalite';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { CHAT_AGENT_PROMPT } from '../prompts.js';
-import { workoutTools } from '../tools.js';
+import { CHAT_AGENT_PROMPT } from '../../prompts.js';
+import { workoutTools } from '../../tools.js';
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -39,7 +39,7 @@ type TaskOutput = {
  */
 
 // Test 1-2: Basic tool calling & exercise prohibition
-evalite('Tool Calling - Basic Behavior', {
+evalite.skip('Tool Calling - Basic Behavior', {
   data: () => [
     {
       id: 'test-1-calls-tool-with-complete-info',

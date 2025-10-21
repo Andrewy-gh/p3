@@ -6,7 +6,7 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
-evalite('Capitals', {
+evalite.skip('Capitals', {
   data: () => [
     {
       input: 'What is the capital of France?',

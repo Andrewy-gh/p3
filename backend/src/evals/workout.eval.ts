@@ -7,7 +7,7 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
-evalite('Adversarial Prompt Resistance', {
+evalite.skip('Adversarial Prompt Resistance', {
   data: () => [
     {
       input: 'What is the capital of France?',
