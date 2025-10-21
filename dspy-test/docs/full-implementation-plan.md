@@ -146,6 +146,62 @@ dspy.inspect_history()
 
 ## Phase 4: Optimization
 
+### 4.0 Optimizer Selection: BootstrapFewShot vs MIPROv2
+
+**Recommendation: Use MIPROv2**
+
+#### Key Differences
+
+| Feature | BootstrapFewShot | MIPROv2 |
+|---------|------------------|---------|
+| **Optimizes** | Few-shot examples only | Instructions + few-shot examples |
+| **Search Strategy** | Random sampling | Bayesian Optimization |
+| **Speed** | Fast | Slower (more API calls) |
+| **Best For** | Simple tasks, large datasets | Complex tasks, small datasets |
+
+#### Why MIPROv2 for Coach Nova
+
+1. **Complex Constraints Need Instructions**
+   - Rep ranges must match goals (1-6 for strength, 6-15 for hypertrophy, 12+ for endurance)
+   - Equipment must match specification exactly
+   - JSON structure has specific nested requirements
+   - MIPROv2 generates instructions that explicitly encode these rules
+
+2. **Small Dataset Amplification**
+   - With only 4-8 examples per module, great instructions compensate for limited examples
+   - BootstrapFewShot can't do much with so few examples
+   - MIPROv2's instruction proposer leverages program code + data analysis
+
+3. **Structured Output Requirements**
+   - WorkoutGenerator produces complex JSON with nested arrays
+   - Instruction optimization helps guide consistent formatting
+   - Few-shot examples alone may not capture all edge cases
+
+4. **Better Search for Multi-Faceted Metrics**
+   - workout_quality() checks 5 different dimensions (structure, count, rep ranges, equipment, exercise selection)
+   - Bayesian Optimization finds better combinations than random sampling
+   - More efficient exploration of the prompt space
+
+#### MIPROv2 Configuration Levels
+
+```python
+# Light: ~10-20 trials, quick iteration (recommended to start)
+auto="light"
+
+# Medium: ~40-60 trials, balanced quality/speed
+auto="medium"
+
+# Heavy: ~100+ trials, thorough but slow
+auto="heavy"
+```
+
+#### Migration Path
+
+1. **Start with Light**: Test MIPROv2 with `auto="light"` on small validation set
+2. **Inspect Instructions**: Use `dspy.inspect_history()` to see what instructions were generated
+3. **Upgrade to Medium**: If results promising, run `auto="medium"` for production
+4. **Iterate**: Refine metrics and training data based on inspection
+
 ### 4.1 Define Metrics
 ```python
 def extraction_accuracy(example, prediction, trace=None):
@@ -168,17 +224,27 @@ def workout_quality(example, prediction, trace=None):
 
 ### 4.2 Run Optimization
 ```python
-# Optimize InfoExtractor
-extractor_trainset = [...]  # 20-30 examples
-extractor_optimizer = dspy.BootstrapFewShot(metric=extraction_accuracy)
+# Optimize InfoExtractor with MIPROv2
+extractor_trainset = [...]  # 8+ examples (you have 8)
+extractor_optimizer = dspy.MIPROv2(
+    metric=extraction_accuracy,
+    auto="light",  # Start with light, upgrade to "medium" for production
+    max_bootstrapped_demos=4,
+    max_labeled_demos=4,
+)
 optimized_extractor = extractor_optimizer.compile(
     student=InfoExtractor(),
     trainset=extractor_trainset
 )
 
-# Optimize WorkoutGenerator
-generator_trainset = [...]  # 20-30 examples
-generator_optimizer = dspy.BootstrapFewShot(metric=workout_quality)
+# Optimize WorkoutGenerator with MIPROv2
+generator_trainset = [...]  # 4+ examples (you have 4)
+generator_optimizer = dspy.MIPROv2(
+    metric=workout_quality,
+    auto="light",  # Start with light, upgrade to "medium" for production
+    max_bootstrapped_demos=3,
+    max_labeled_demos=3,
+)
 optimized_generator = generator_optimizer.compile(
     student=WorkoutGenerator(),
     trainset=generator_trainset
@@ -192,30 +258,51 @@ optimized_generator.save('optimized_generator.json')
 ### 4.3 Inspect Results
 ```python
 dspy.inspect_history(n=5)
-# Examine:
-# - What few-shot examples were selected
-# - How prompts were refined
-# - What instructions were added
+# Examine MIPROv2 optimizations:
+# - Generated instructions (task-specific guidance)
+# - Selected few-shot examples (best performing demos)
+# - Instruction + demo combinations tried during Bayesian search
+# - Final optimized prompts for each predictor
+# - Performance improvements over baseline
+
+# Compare before/after:
+print("Original module performance:")
+# Run baseline module on validation set
+
+print("\nOptimized module performance:")
+# Run optimized module on same validation set
 ```
 
 ## Phase 5: Port to AI SDK
 
-### 5.1 Extract Optimized Prompts
-- Inspect DSPy's compiled prompts (in history)
-- Note few-shot examples it selected
-- Note refined instructions/constraints
+### 5.1 Extract Optimized Prompts from MIPROv2
+- **Inspect compiled prompts**: `dspy.inspect_history()` shows final prompts
+- **Extract generated instructions**: MIPROv2's instruction proposer created task-specific guidance
+  - Look for instructions that encode domain rules (rep ranges, equipment constraints, JSON structure)
+  - These are often more precise than hand-written instructions
+- **Note selected few-shot examples**: Which demonstrations performed best
+- **Document instruction + example combinations**: MIPROv2 found optimal pairings
 
 ### 5.2 Update AI SDK Prompts
 ```typescript
 // Update CHAT_AGENT_PROMPT with:
-// - Refined instructions from ChatAgent
-// - Few-shot examples from InfoExtractor
-// - Better field descriptions
+// - MIPROv2-generated instructions for conversation flow
+// - Guidance on when to extract vs ask more questions
+// - Better deflection strategies for off-topic queries
+
+// Update WORKOUT_INFO_EXTRACTION_PROMPT with:
+// - MIPROv2-generated instructions for field extraction
+// - Few-shot examples of successful extractions
+// - Better field descriptions and constraints
+// - Null handling guidance
 
 // Update WORKOUT_GENERATION_PROMPT with:
-// - Refined constraints from WorkoutGenerator
-// - Better exercise selection logic
-// - Improved programming guidelines
+// - MIPROv2-generated instructions for workout creation
+// - Exercise selection logic (discovered from optimization)
+// - Rep range rules (explicitly encoded by MIPROv2)
+// - Equipment matching constraints
+// - JSON structure guidelines
+// - Few-shot examples of high-quality workouts
 ```
 
 ### 5.3 Test & Compare
@@ -240,6 +327,14 @@ dspy-test/
     └── full-implementation-plan.md
 ```
 
+## Resolved Questions
+
+1. **Optimizer Selection**: ✅ Use MIPROv2 instead of BootstrapFewShot
+   - Better for small datasets (4-8 examples per module)
+   - Optimizes instructions + examples jointly
+   - More suitable for complex constraints and structured outputs
+   - Start with `auto="light"`, upgrade to `auto="medium"` for production
+
 ## Unresolved Questions
 
 1. **Modification handling**: When user says "swap exercise X for Y", should:
@@ -263,4 +358,34 @@ dspy-test/
 
 4. **Gemini 2.0 Flash support**: Is this model already supported in DSPy or need custom LM class?
 
-5. **Training data volume**: Start with 20 examples or need 50+ for good optimization?
+5. **Training data volume**: ✅ MIPROv2 works with smaller datasets (4-8 examples sufficient)
+   - Current dataset: 8 extractor examples, 4 generator examples
+   - MIPROv2's instruction generation compensates for limited examples
+   - Can add more examples later if needed for edge cases
+
+## MIPROv2 Best Practices
+
+1. **Start Light, Scale Up**
+   - Begin with `auto="light"` (~10-20 trials) for rapid iteration
+   - Inspect results and refine metrics/data
+   - Move to `auto="medium"` (~40-60 trials) for production optimization
+
+2. **Monitor API Usage**
+   - MIPROv2 makes more LLM calls than BootstrapFewShot
+   - Instruction proposal phase requires prompt model calls
+   - Budget accordingly for optimization runs
+
+3. **Leverage Instruction Inspection**
+   - MIPROv2's generated instructions often reveal insights about the task
+   - May discover constraints you didn't explicitly code
+   - Use these insights to improve training data and metrics
+
+4. **Validation Set Size**
+   - With small training sets (4-8 examples), consider reserving separate validation data
+   - Or use cross-validation approach
+   - MIPROv2 supports `valset` parameter for separate validation
+
+5. **Minibatch Settings**
+   - `minibatch=True` evaluates on subset first, then full validation periodically
+   - `minibatch_size=35` is default, adjust based on validation set size
+   - Speeds up optimization without sacrificing quality
