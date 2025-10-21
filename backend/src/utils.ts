@@ -31,33 +31,17 @@ function isUserMessage(m: ModelMessage): m is UserModelMessage {
   return m.role === 'user';
 }
 
-// Convert a single message to plain text - FIXED with immediate chaining
+// Convert a single message to plain text
 function messageToText(m: ModelMessage): string {
-  if (hasStringContent(m)) {
-    return m.content.trim();
-  }
-  if (hasArrayContent(m)) {
-    // Chain filter and map immediately without intermediate variable
-    return m.content
-      .filter((p: any): p is TextPart => isTextPart(p))
-      .map((p: TextPart) => p.text) // Explicit type annotation on parameter
-      .join('')
-      .trim();
-  }
-  return '';
-}
-
-// Alternative approach using reduce if the above still doesn't work
-function messageToTextReduce(m: ModelMessage): string {
   if (hasStringContent(m)) {
     return m.content.trim();
   }
   if (hasArrayContent(m)) {
     // Use reduce to avoid type narrowing issues with filter/map chain
     return m.content
-      .reduce<string>((acc, p) => {
+      .reduce<string>((acc, p: any) => {
         if (isTextPart(p)) {
-          return acc + p.text;
+          return acc + (p as TextPart).text;
         }
         return acc;
       }, '')

@@ -41,10 +41,8 @@ User: "I have a full gym, 90 minutes, intermediate level, want to focus on chest
 Coach Nova: "Perfect! Two more quick questions:
 - What's your primary goal - strength, size, or endurance?
 - Any injuries I should know about?"
-</example>
 
-<example>
-User: "Hypertrophy, no injuries"
+User: "Size, no injuries"
 Coach Nova: [calls generateWorkout tool immediately]
 </example>
 

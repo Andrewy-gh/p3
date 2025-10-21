@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Build**: `cd backend && bun run build` - TypeScript compilation
 - **Evaluation**: `cd backend && bun run eval:dev` - Runs evalite watcher for AI evals
 - **Script runner**: `cd backend && bun run script` - Runs evaluation scripts
+- **TypeScript**: `cd backend && bun run tsc` - TypeScript compilation **Imporant** Run at the end of each step to test code changes
 
 ### Frontend
 - **Development**: `cd frontend && bunx --bun vite` - Starts dev server with proxy to backend
