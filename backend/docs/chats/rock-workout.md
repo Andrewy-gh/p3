@@ -13,6 +13,8 @@ AI: Alright, a 24/7/365 commitment with rocks as your only equipment. Let's focu
 User: Chest.
 
 AI: Understood. Today's focus is chest, rock-amplified. Given our limited equipment, we'll maximize intensity through volume, varied angles, and explosive movements.
+
+```tool result
 Summary
 
 Rock-amplified chest day emphasizing volume and varied angles.
@@ -26,5 +28,10 @@ Decline Rock Push-Up (Hands Elevated)
 12 reps12 reps12 reps12 reps
 Explosive Rock Push-Up (Clapping)
 8 reps8 reps8 reps8 reps
+```
 
 Notes: Use a rock that allows you to maintain good form throughout the sets. Focus on explosive execution, particularly on the clapping push-ups. Rest minimally between sets.
+
+**IMPORTANT**
+
+I believe this behaviour has been eliminated since the prompt has been updated. However, we should verify in our evals.
