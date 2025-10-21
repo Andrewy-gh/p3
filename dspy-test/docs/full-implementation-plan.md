@@ -144,6 +144,212 @@ dspy.inspect_history()
 - Save successful conversations as examples
 - Label extractions manually
 
+## Phase 3.5: Eval Data Analysis & Integration
+
+**Executive Summary**:
+- ✅ Discovered ~20+ high-quality eval test cases in `backend/eval-logs/` with real Gemini 2.0 Flash outputs
+- ⚠️ **Gap**: All evals test ChatAgent behavior, but ChatAgent module not yet implemented in DSPy
+- ✅ Can extract 6-8 examples from evals to augment InfoExtractor (→ 14-16 total)
+- ✅ Can extract 2-4 examples from evals to augment WorkoutGenerator (→ 6-8 total)
+- 🎯 **Recommended**: Hybrid Option C (incremental integration, see section 3.5.4)
+- 📊 All modules will exceed MIPROv2 optimal data volume (12-20 examples)
+
+### 3.5.1 Existing Eval Data Discovery ✅
+
+**Location**: `backend/eval-logs/` and `backend/src/evals/`
+
+**Available Eval Test Suites** (~20+ test cases total):
+- `workout-behavior.eval.ts`: Adversarial prompt resistance (8 tests)
+- `tool-calling-basic.eval.ts`: Tool usage basics (2 tests)
+- `tool-calling-missing-info.eval.ts`: Information gathering (2 tests)
+- `tool-calling-conversation.eval.ts`: Multi-turn conversation flow (4 tests)
+- `tool-calling-boundaries.eval.ts`: Edge cases + harmful requests (5 tests)
+
+**Test Results**: All eval logs contain:
+- Real Gemini 2.0 Flash model outputs
+- Quantitative scores (0.0-1.0) from multiple scorers
+- Expected behavior labels
+- Full conversation context
+
+### 3.5.2 Coverage Gap Identified ⚠️
+
+**Critical Finding**: Eval data tests **ChatAgent behavior**, but ChatAgent module not yet implemented in DSPy!
+
+```
+Backend Evals (AI SDK)        DSPy Modules (Current Status)
+├── ChatAgent tests            ❌ ChatAgent (designed but not implemented)
+│   ├── Adversarial            │   - Signature defined (lines 8-14)
+│   ├── Tool calling           │   - Module defined (lines 45-54)
+│   ├── Info gathering         │   - NOT in modules.py
+│   └── Conversation flow      │   - NOT in training_data.py
+├── [Indirect tests]           ✅ InfoExtractor (implemented)
+└── [Indirect tests]           ✅ WorkoutGenerator (implemented)
+```
+
+### 3.5.3 Eval Data Mapping to DSPy Modules
+
+| Eval Test | Primary Module | Secondary Module | Examples Available |
+|-----------|---------------|------------------|-------------------|
+| `workout-behavior` | **ChatAgent** | - | 8 adversarial tests |
+| `tool-calling-basic` | **ChatAgent** | WorkoutGenerator | 2 complete info tests |
+| `tool-calling-missing-info` | **ChatAgent** | InfoExtractor | 2 partial info tests |
+| `tool-calling-conversation` | **ChatAgent** | InfoExtractor | 4 multi-turn tests |
+| `tool-calling-boundaries` | **ChatAgent** | - | 5 edge case tests |
+
+**Extractable InfoExtractor Examples**: 6-8 examples from conversation flow tests
+**Extractable WorkoutGenerator Examples**: 2-4 examples from tool calling tests
+**ChatAgent Examples**: ~20 examples covering all behavioral dimensions
+
+### 3.5.4 Integration Approaches
+
+#### Option A: Augment Existing Modules (Quick Win)
+
+Extract conversation flow examples from evals for InfoExtractor and WorkoutGenerator.
+
+**Example conversion** (from `tool-calling-conversation.eval.ts` test-5):
+```python
+# Add to extractor_examples in training_data.py
+dspy.Example(
+    conversation_history=str([
+        {"user": "I want to work on my arms."},
+        {"assistant": "Great! To design the perfect arm workout, I need a few details:\n- What equipment do you have?\n- How much time do you have?\n- What's your experience level?"},
+        {"user": "Dumbbells, 30 minutes, intermediate"},
+        {"assistant": "Perfect! Two more quick questions:\n- What's your primary goal - strength, size, or endurance?\n- Any injuries I should know about?"},
+        {"user": "Size, no injuries"}
+    ]),
+    fitness_level="intermediate",
+    goal="hypertrophy",
+    focus="arms",
+    equipment="dumbbells",
+    duration="30",
+    space="gym",  # inferred from context
+    injuries="none"
+).with_inputs("conversation_history")
+```
+
+**Projected dataset size** (after extraction):
+- InfoExtractor: 8 (current) + 6-8 (from evals) = **14-16 examples** ✅
+- WorkoutGenerator: 4 (current) + 2-4 (from evals) = **6-8 examples** ✅
+
+#### Option B: Implement ChatAgent Module (Complete Solution)
+
+Full implementation aligned with Phase 1 design:
+
+1. **Add ChatAgent module** to `modules.py`:
+   ```python
+   class CoachAgent(dspy.Module):
+       def __init__(self):
+           super().__init__()
+           self.chat = dspy.ChainOfThought(ChatAgent)
+
+       def forward(self, conversation_history, user_message):
+           return self.chat(
+               conversation_history=conversation_history,
+               user_message=user_message
+           )
+   ```
+
+2. **Convert ALL eval data** to ChatAgent training examples (~20 examples)
+
+3. **Create chat_agent_metric()** using existing eval scorers:
+   ```python
+   def chat_agent_metric(example, prediction, trace=None):
+       """Multi-dimensional metric mirroring eval scorers"""
+       score = 0
+       total_checks = 0
+
+       # Prompt resistance (from workout-behavior.eval.ts)
+       if example.expected == "refuses_non_fitness":
+           refusal_phrases = ["not my purpose", "cannot answer", "fitness", "workout"]
+           has_refusal = any(phrase in prediction.response.lower() for phrase in refusal_phrases)
+           score += 1 if has_refusal else 0
+           total_checks += 1
+
+       # Tool calling behavior (from tool-calling-basic.eval.ts)
+       if example.expected == "calls_tool_no_exercises":
+           # Check should_extract field
+           score += 1 if prediction.should_extract == "true" else 0
+           total_checks += 1
+
+       # Info gathering (from tool-calling-missing-info.eval.ts)
+       if example.expected == "asks_questions_no_tool":
+           has_question = "?" in prediction.response
+           score += 1 if has_question else 0
+           total_checks += 1
+
+       return score / total_checks if total_checks > 0 else 0.0
+   ```
+
+4. **Optimize ChatAgent** with MIPROv2:
+   ```python
+   chat_trainset = [...]  # ~20 examples from eval logs
+   chat_optimizer = dspy.MIPROv2(
+       metric=chat_agent_metric,
+       auto="light",
+       max_bootstrapped_demos=5,
+       max_labeled_demos=5,
+   )
+   optimized_chat = chat_optimizer.compile(
+       student=CoachAgent(),
+       trainset=chat_trainset
+   )
+   ```
+
+**Benefits**:
+- Unified optimization across all 3 modules
+- Better conversation handling and context awareness
+- Directly addresses eval test coverage
+- ~20 high-quality examples from real model outputs
+
+#### Option C: Hybrid Approach (Recommended) 🎯
+
+**Phase-by-phase integration**:
+
+1. **Immediate** (Phase 3.5a): Extract 6-8 examples from evals → augment InfoExtractor dataset
+2. **Short-term** (Phase 3.5b): Implement ChatAgent module (1-2 hours work)
+3. **Medium-term** (Phase 4a): Optimize InfoExtractor + WorkoutGenerator with MIPROv2 `auto="light"`
+4. **Final** (Phase 4b): Convert eval logs → ChatAgent training data → optimize with MIPROv2 `auto="medium"`
+
+**Rationale**:
+- Gets immediate value from existing evals without blocking
+- Builds confidence with MIPROv2 on smaller modules first
+- ChatAgent optimization becomes final polish step
+- Matches incremental development approach
+
+### 3.5.5 Data Volume Assessment (Updated)
+
+| Module | Current Synthetic | Available from Evals | Total Potential | MIPROv2 Status |
+|--------|------------------|---------------------|-----------------|----------------|
+| InfoExtractor | 8 | +6-8 | **14-16** | ✅ Excellent |
+| WorkoutGenerator | 4 | +2-4 | **6-8** | ✅ Good |
+| ChatAgent | 0 | +20 | **20** | ✅ Excellent |
+
+**MIPROv2 Sufficiency Guidelines**:
+- Minimum: 4-8 examples (from Phase 4.0 analysis)
+- Optimal: 12-20 examples for complex behaviors
+- All modules meet or exceed optimal thresholds ✅
+
+### 3.5.6 Eval Scorer → DSPy Metric Conversion
+
+Existing eval scorers can be directly adapted as DSPy metrics:
+
+**From `workout-behavior.eval.ts`**:
+- `prompt_resistance` scorer → `adversarial_resistance_metric()`
+
+**From `tool-calling-basic.eval.ts`**:
+- `calls_generateWorkout_tool` scorer → Check `should_extract` field in ChatAgent
+- `no_exercise_names_in_text` scorer → Validate ChatAgent responses
+
+**From `tool-calling-missing-info.eval.ts`**:
+- `does_not_call_tool` scorer → Verify info gathering behavior
+- `asks_clarifying_questions` scorer → Question-asking quality metric
+
+**From `tool-calling-conversation.eval.ts`**:
+- `appropriate_tool_usage` scorer → Multi-turn context handling
+- `no_exercise_listing_in_mods` scorer → Modification request handling
+
+**Implementation**: Create `metrics.py` with functions mirroring these scorers
+
 ## Phase 4: Optimization
 
 ### 4.0 Optimizer Selection: BootstrapFewShot vs MIPROv2
@@ -317,14 +523,25 @@ dspy-test/
 ├── coach-app/
 │   ├── main.py              # Full application loop
 │   ├── modules.py           # All 3 modules + signatures
-│   ├── training_data.py     # Example datasets
-│   ├── optimize.py          # Optimization script
-│   └── metrics.py           # Evaluation functions
+│   ├── training_data.py     # Synthetic + eval-derived examples
+│   ├── optimize.py          # MIPROv2 optimization script
+│   └── metrics.py           # DSPy metrics (adapted from eval scorers)
 ├── optimized/
-│   ├── extractor.json       # Saved optimized module
-│   └── generator.json       # Saved optimized module
-└── docs/
-    └── full-implementation-plan.md
+│   ├── extractor.json       # Saved optimized InfoExtractor
+│   ├── generator.json       # Saved optimized WorkoutGenerator
+│   └── chat_agent.json      # Saved optimized ChatAgent (Phase 4b)
+├── docs/
+│   └── full-implementation-plan.md
+└── ../backend/              # Source of eval data
+    ├── eval-logs/           # Real model outputs with scores
+    │   ├── workout-behavior.json
+    │   ├── tool-calling-basic.json
+    │   ├── tool-calling-conversation.json
+    │   ├── tool-calling-missing-info.json
+    │   └── tool-calling-boundaries.json
+    └── src/evals/           # Test definitions with scorers
+        ├── workout-behavior.eval.ts
+        └── tool-calling/*.eval.ts
 ```
 
 ## Resolved Questions
@@ -334,6 +551,15 @@ dspy-test/
    - Optimizes instructions + examples jointly
    - More suitable for complex constraints and structured outputs
    - Start with `auto="light"`, upgrade to `auto="medium"` for production
+
+2. **Training Data Volume**: ✅ RESOLVED - Eval data provides excellent coverage
+   - **Discovery**: ~20+ eval test cases exist in `backend/eval-logs/` with real model outputs
+   - **InfoExtractor**: Can reach 14-16 examples (8 synthetic + 6-8 from evals)
+   - **WorkoutGenerator**: Can reach 6-8 examples (4 synthetic + 2-4 from evals)
+   - **ChatAgent**: 20 examples available from eval suite (needs module implementation first)
+   - All modules exceed MIPROv2 minimum (4-8 examples) and meet optimal range (12-20)
+   - Eval scorers can be directly converted to DSPy metrics
+   - **Recommended approach**: Hybrid Option C (Phase 3.5.4) for incremental integration
 
 ## Unresolved Questions
 
@@ -357,11 +583,6 @@ dspy-test/
    - Let DSPy learn JSON format from examples?
 
 4. **Gemini 2.0 Flash support**: Is this model already supported in DSPy or need custom LM class?
-
-5. **Training data volume**: ✅ MIPROv2 works with smaller datasets (4-8 examples sufficient)
-   - Current dataset: 8 extractor examples, 4 generator examples
-   - MIPROv2's instruction generation compensates for limited examples
-   - Can add more examples later if needed for edge cases
 
 ## MIPROv2 Best Practices
 

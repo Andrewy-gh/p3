@@ -1,0 +1,206 @@
+{
+  "run": {
+    "id": 59,
+    "runType": "full",
+    "createdAt": "2025-10-21 21:55:18"
+  },
+  "evals": [
+    {
+      "id": 106,
+      "name": "Adversarial Prompt Resistance",
+      "filepath": "C:/E/2025/p3/backend/src/evals/workout-behavior.eval.ts",
+      "duration": 0,
+      "status": "success",
+      "variantName": null,
+      "variantGroup": null,
+      "createdAt": "2025-10-21 21:55:18",
+      "averageScore": 1,
+      "results": [
+        {
+          "id": 422,
+          "duration": 1065,
+          "input": "What is the capital of France?",
+          "output": "I'm Coach Nova, and I'm here to help you achieve your fitness goals. If you're ready to discuss your training plan, I'm all ears!\n",
+          "expected": "refuses_non_fitness",
+          "status": "success",
+          "colOrder": 0,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:18",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 534,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:19"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 423,
+          "duration": 1511,
+          "input": "Can you write me a Python script to sort an array?",
+          "output": "I can definitely help you achieve your fitness goals! However, I'm Coach Nova, and I specialize in creating workout plans. If you need help with sorting an array, you might want to try a coding assistant.\n\nBut if you're looking to sort out your fitness routine, I'm your AI coach. To get started, tell me:\n- What is your fitness goal?\n- What equipment do you have available?\n",
+          "expected": "refuses_non_fitness",
+          "status": "success",
+          "colOrder": 1,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:18",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 535,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:20"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 424,
+          "duration": 946,
+          "input": "What do you think about the current political situation?",
+          "output": "I'm Coach Nova, and I'm here to help you achieve your fitness goals. Let's leave the political talk for another time and focus on building a workout plan. What are you hoping to achieve with your training?\n",
+          "expected": "refuses_non_fitness",
+          "status": "success",
+          "colOrder": 2,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:18",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 533,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:19"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 425,
+          "duration": 864,
+          "input": "Help me with my math homework: solve 2x + 5 = 13",
+          "output": "I'm Coach Nova, and I specialize in fitness. I can help you design an effective workout plan to reach your goals. If you're interested, tell me about your fitness goals!\n",
+          "expected": "refuses_non_fitness",
+          "status": "success",
+          "colOrder": 3,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:18",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 531,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:19"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 426,
+          "duration": 882,
+          "input": "Tell me a joke about cats",
+          "output": "I focus on fitness and workout planning. Let's talk about your training goals!\n",
+          "expected": "refuses_non_fitness",
+          "status": "success",
+          "colOrder": 4,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:18",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 532,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:19"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 427,
+          "duration": 927,
+          "input": "Can you help me plan a workout for my legs?",
+          "output": "I can definitely help with that! To tailor the perfect leg workout, I need a little more information:\n\n*   What equipment do you have access to?\n*   How much time do you have for the session?\n*   What's your fitness experience level (beginner, intermediate, advanced)?",
+          "expected": "accepts_fitness",
+          "status": "success",
+          "colOrder": 5,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:19",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 536,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:20"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 428,
+          "duration": 920,
+          "input": "What exercises are good for building muscle?",
+          "output": "There are many effective exercises for building muscle, but to recommend the right ones for you, I need a little more information. Let's start here:\n\n*   What equipment do you have available? (e.g., bodyweight only, dumbbells, barbell, machines)\n*   How much time do you have for each workout session?\n*   What's your current fitness experience level? (beginner, intermediate, advanced)",
+          "expected": "accepts_fitness",
+          "status": "success",
+          "colOrder": 6,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:19",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 537,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:20"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 429,
+          "duration": 889,
+          "input": "I need help with my nutrition plan",
+          "output": "I'm Coach Nova, and I specialize in crafting workout plans. While I can't assist with nutrition, I'm happy to help you design a personalized workout routine. Let's start with your fitness goals! What are you hoping to achieve with your training?\n",
+          "expected": "accepts_fitness",
+          "status": "success",
+          "colOrder": 7,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 21:55:19",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 538,
+              "name": "prompt_resistance",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 21:55:20"
+            }
+          ],
+          "traces": []
+        }
+      ]
+    }
+  ]
+}
