@@ -350,6 +350,35 @@ Existing eval scorers can be directly adapted as DSPy metrics:
 
 **Implementation**: Create `metrics.py` with functions mirroring these scorers
 
+### 3.5.7 Next Steps (Action Items)
+
+Based on **Option C: Hybrid Approach** (recommended):
+
+**Immediate Actions** (Phase 3.5a - can start now):
+1. ✏️ Extract 4-6 conversation examples from `tool-calling-conversation.json`
+2. ✏️ Add to `extractor_examples` in `training_data.py`
+3. ✏️ Extract 2-3 complete workout requests from `tool-calling-basic.json`
+4. ✏️ Add to `generator_examples` in `training_data.py`
+5. ✅ Run `training_data.py` to verify examples load correctly
+
+**Short-term** (Phase 3.5b - 1-2 hours):
+1. ✏️ Implement `CoachAgent` class in `modules.py` (copy from lines 45-54 of this plan)
+2. ✏️ Create `chat_agent_examples` list in `training_data.py`
+3. ✏️ Convert 5-10 eval tests to ChatAgent training examples
+4. ✏️ Create `chat_agent_metric()` in `metrics.py`
+
+**Medium-term** (Phase 4a - optimization):
+1. ✏️ Run MIPROv2 on InfoExtractor with augmented dataset (14-16 examples)
+2. ✏️ Run MIPROv2 on WorkoutGenerator with augmented dataset (6-8 examples)
+3. ✏️ Inspect results with `dspy.inspect_history()`
+4. ✏️ Save optimized modules
+
+**Final** (Phase 4b - ChatAgent optimization):
+1. ✏️ Convert remaining eval tests to ChatAgent examples (~20 total)
+2. ✏️ Run MIPROv2 on ChatAgent with `auto="medium"`
+3. ✏️ Compare optimized vs baseline performance
+4. ✏️ Port optimized prompts back to AI SDK (Phase 5)
+
 ## Phase 4: Optimization
 
 ### 4.0 Optimizer Selection: BootstrapFewShot vs MIPROv2
