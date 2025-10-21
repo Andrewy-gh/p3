@@ -1,0 +1,216 @@
+{
+  "run": {
+    "id": 55,
+    "runType": "full",
+    "createdAt": "2025-10-21 03:33:00"
+  },
+  "evals": [
+    {
+      "id": 97,
+      "name": "Tool Calling - Conversation Flow",
+      "filepath": "C:/E/2025/p3/backend/src/evals/tool-calling/tool-calling-conversation.eval.ts",
+      "duration": 0,
+      "status": "success",
+      "variantName": null,
+      "variantGroup": null,
+      "createdAt": "2025-10-21 03:33:00",
+      "averageScore": 0.9375,
+      "results": [
+        {
+          "id": 399,
+          "duration": 1069,
+          "input": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "I want to work on my arms."
+              },
+              {
+                "role": "assistant",
+                "content": "Great! To design the perfect arm workout, I need a few details:\n- What equipment do you have?\n- How much time do you have?\n- What's your experience level?"
+              },
+              {
+                "role": "user",
+                "content": "Dumbbells, 30 minutes, intermediate"
+              },
+              {
+                "role": "assistant",
+                "content": "Perfect! Two more quick questions:\n- What's your primary goal - strength, size, or endurance?\n- Any injuries I should know about?"
+              },
+              {
+                "role": "user",
+                "content": "Size, no injuries"
+              }
+            ],
+            "expected": "calls_tool_after_info_complete",
+            "description": "Should call tool after gathering all info across conversation"
+          },
+          "output": {
+            "text": "Awesome! I'm generating your workout now.\n",
+            "toolCalls": [
+              "generateWorkout"
+            ],
+            "lastUserMessage": "Size, no injuries"
+          },
+          "expected": "calls_tool_after_info_complete",
+          "status": "success",
+          "colOrder": 0,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:33:00",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 492,
+              "name": "appropriate_tool_usage",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            },
+            {
+              "id": 493,
+              "name": "no_exercise_listing_in_mods",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 400,
+          "duration": 792,
+          "input": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "The workout looks good but can I swap incline press for flat bench?"
+              }
+            ],
+            "expected": "asks_why_no_new_exercises",
+            "description": "Should ask about modification without listing exercises"
+          },
+          "output": {
+            "text": "Absolutely! What's your reasoning for the swap - preference, equipment availability, or targeting a specific area?\n",
+            "toolCalls": [],
+            "lastUserMessage": "The workout looks good but can I swap incline press for flat bench?"
+          },
+          "expected": "asks_why_no_new_exercises",
+          "status": "success",
+          "colOrder": 1,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:33:00",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 490,
+              "name": "appropriate_tool_usage",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            },
+            {
+              "id": 491,
+              "name": "no_exercise_listing_in_mods",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 401,
+          "duration": 986,
+          "input": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "This workout is too long, can you make it 30 minutes instead of 60?"
+              }
+            ],
+            "expected": "suggests_removal_no_listing",
+            "description": "Should suggest removal strategy without listing exercises"
+          },
+          "output": {
+            "text": "No problem! I can adjust the workout duration. I just need to confirm the other details are still accurate:\n\n- Are you still focusing on the same muscle groups?\n- Is the equipment still the same?\n- Any changes to injuries or pain?\n",
+            "toolCalls": [],
+            "lastUserMessage": "This workout is too long, can you make it 30 minutes instead of 60?"
+          },
+          "expected": "suggests_removal_no_listing",
+          "status": "success",
+          "colOrder": 2,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:33:00",
+          "averageScore": 0.75,
+          "scores": [
+            {
+              "id": 494,
+              "name": "appropriate_tool_usage",
+              "score": 0.5,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            },
+            {
+              "id": 495,
+              "name": "no_exercise_listing_in_mods",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 402,
+          "duration": 1028,
+          "input": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Can you replace the third exercise with something else?"
+              }
+            ],
+            "expected": "asks_preference_no_listing",
+            "description": "Should ask about preferences without mentioning exercises"
+          },
+          "output": {
+            "text": "I can definitely help adjust your workout. To make the best recommendation, can you tell me:\n\n- Which exercise would you like to replace?\n- What equipment is available to you?\n- What is your reasoning for the swap - preference, equipment availability, or targeting a specific area?\n",
+            "toolCalls": [],
+            "lastUserMessage": "Can you replace the third exercise with something else?"
+          },
+          "expected": "asks_preference_no_listing",
+          "status": "success",
+          "colOrder": 3,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:33:00",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 496,
+              "name": "appropriate_tool_usage",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            },
+            {
+              "id": 497,
+              "name": "no_exercise_listing_in_mods",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:33:01"
+            }
+          ],
+          "traces": []
+        }
+      ]
+    }
+  ]
+}

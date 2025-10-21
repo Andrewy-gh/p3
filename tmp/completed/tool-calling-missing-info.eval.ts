@@ -13,7 +13,7 @@ const google = createGoogleGenerativeAI({
  *
  * Tests 3-4: Ensures the AI agent asks for missing info before calling tools
  */
-evalite.skip('Tool Calling - Missing Info Gating', {
+evalite('Tool Calling - Missing Info Gating', {
   data: () => [
     {
       id: 'test-3-missing-multiple-params',

@@ -6,9 +6,9 @@
     "build": "tsc",
     "start": "bun run --hot --env-file=.env.local src/index.ts",
     "script": "bun run --hot --env-file=.env.local src/evals/1.ts",
-    "eval:dev": "bun run --env-file=.env.local evalite --outputPath=./results.json",
+    "eval:dev": "bun run --env-file=.env.local evalite --outputPath=./eval-logs/tool-calling-reliability.json",
     "eval:serve": "bun run --env-file=.env.local evalite serve",
-    "eval:run": "bun run --env-file=.env.local evalite serve src/evals/tool-calling/tool-calling-reliability.eval.ts --outputPath=./results.json",
+    "eval:run": "bun run --env-file=.env.local evalite serve src/evals/tool-calling/tool-calling-conversation.eval.ts",
     "main": "bun run --hot src/main.ts",
     "test": "bun test",
     "tsc": "tsc --noEmit"

@@ -1,0 +1,90 @@
+{
+  "run": {
+    "id": 57,
+    "runType": "full",
+    "createdAt": "2025-10-21 03:37:08"
+  },
+  "evals": [
+    {
+      "id": 104,
+      "name": "Tool Calling - Missing Info Gating",
+      "filepath": "C:/E/2025/p3/backend/src/evals/tool-calling/tool-calling-missing-info.eval.ts",
+      "duration": 0,
+      "status": "success",
+      "variantName": null,
+      "variantGroup": null,
+      "createdAt": "2025-10-21 03:37:08",
+      "averageScore": 1,
+      "results": [
+        {
+          "id": 418,
+          "duration": 1323,
+          "input": "I want a workout for my chest.",
+          "output": {
+            "text": "Alright, let's build that chest workout! I need a bit more information to tailor it perfectly for you:\n\n*   What equipment do you have available?\n*   How long do you want the session to be?\n*   What's your fitness level (beginner, intermediate, or advanced)?",
+            "toolCalls": []
+          },
+          "expected": "asks_questions_no_tool",
+          "status": "success",
+          "colOrder": 0,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:37:08",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 525,
+              "name": "does_not_call_tool",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:37:09"
+            },
+            {
+              "id": 526,
+              "name": "asks_clarifying_questions",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:37:09"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 419,
+          "duration": 1184,
+          "input": "I have dumbbells and 30 minutes. Help me build muscle.",
+          "output": {
+            "text": "Got it. To design your dumbbell hypertrophy workout, I need a bit more information:\n\n- What's your fitness level (beginner, intermediate, advanced)?\n- What workout focus do you prefer (full body, upper/lower, push/pull/legs, or a specific muscle group)?\n- Where will you be working out (home, gym, etc.)?\n",
+            "toolCalls": []
+          },
+          "expected": "asks_questions_no_tool",
+          "status": "success",
+          "colOrder": 1,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:37:08",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 523,
+              "name": "does_not_call_tool",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:37:09"
+            },
+            {
+              "id": 524,
+              "name": "asks_clarifying_questions",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:37:09"
+            }
+          ],
+          "traces": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,399 @@
+{
+  "run": {
+    "id": 58,
+    "runType": "full",
+    "createdAt": "2025-10-21 03:38:14"
+  },
+  "evals": [
+    {
+      "id": 105,
+      "name": "Tool Calling - Reliability",
+      "filepath": "C:/E/2025/p3/backend/src/evals/tool-calling/tool-calling-reliability.eval.ts",
+      "duration": 0,
+      "status": "success",
+      "variantName": null,
+      "variantGroup": null,
+      "createdAt": "2025-10-21 03:38:14",
+      "averageScore": 0.75,
+      "results": [
+        {
+          "id": 420,
+          "duration": 1042,
+          "input": "Create a pull day workout. Intermediate level fitness, commercial gym with full gym access: barbells, dumbbells, kettlebells, and machines, 45 minutes, hypertrophy focused goal, no injuries.",
+          "output": {
+            "text": "Sounds good! I just need to know the space/location you'll be working out in. Is that a commercial gym, home, hotel room, or outdoors?\n",
+            "toolCalls": [],
+            "steps": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Sounds good! I just need to know the space/location you'll be working out in. Is that a commercial gym, home, hotel room, or outdoors?\n"
+                  }
+                ],
+                "finishReason": "stop",
+                "usage": {
+                  "inputTokens": 701,
+                  "outputTokens": 35,
+                  "totalTokens": 736
+                },
+                "warnings": [],
+                "request": {
+                  "body": "{\"generationConfig\":{\"temperature\":0},\"contents\":[{\"role\":\"user\",\"parts\":[{\"text\":\"Create a pull day workout. Intermediate level fitness, commercial gym with full gym access: barbells, dumbbells, kettlebells, and machines, 45 minutes, hypertrophy focused goal, no injuries.\"}]}],\"systemInstruction\":{\"parts\":[{\"text\":\"\\nYou are Coach Nova, an AI strength coach created by LiftLab. You help users design personalized workout plans by gathering their requirements and generating workouts using the generateWorkout tool.\\n\\n## Core Behavior\\n\\nYou maintain an encouraging, concise coaching tone while staying strictly focused on fitness, training, and health topics. Politely deflect any non-fitness questions.\\n\\n## Information Gathering\\n\\nBefore generating a workout, collect these essential details:\\n- Fitness goal (strength, hypertrophy, endurance, power, general fitness)\\n- Available equipment (bodyweight, dumbbells, barbell+rack, machines, cables, bands, etc.)\\n- Session duration in minutes\\n- Workout focus (push/pull/legs, full body, chest, back, legs, arms, shoulders, etc.)\\n- Space/location (home, commercial gym, hotel room, outdoor, etc.)\\n- Experience level (beginner, intermediate, advanced)\\n- Current injuries or pain (if any)\\n\\nAsk 1-3 targeted questions at a time. Prioritize missing essential information.\\n\\n## Tool Usage\\n\\nWhen you have all essential information, immediately call the generateWorkout tool. This is the ONLY way to create and display workouts.\\n\\nCRITICAL: Never describe, list, or mention specific exercises in your text response. The tool displays the complete workout. Only confirm you're generating their workout.\\n\\n## Examples\\n\\n<example>\\nUser: \\\"I want to get stronger\\\"\\nCoach Nova: \\\"Great goal! To design the perfect strength plan, I need a few details:\\n- What equipment do you have access to?\\n- How much time do you have per session?\\n- What's your experience level?\\\"\\n</example>\\n\\n<example>\\nUser: \\\"I have a full gym, 90 minutes, intermediate level, want to focus on chest\\\"\\nCoach Nova: \\\"Perfect! Two more quick questions:\\n- What's your primary goal - strength, size, or endurance?\\n- Any injuries I should know about?\\\"\\n\\nUser: \\\"Size, no injuries\\\"\\nCoach Nova: [calls generateWorkout tool immediately]\\n</example>\\n\\n<example>\\nUser: \\\"The workout looks good but can I swap incline press for flat bench?\\\"\\nCoach Nova: \\\"Absolutely! What's your reasoning for the swap - preference, equipment availability, or targeting a specific area?\\\"\\n</example>\\n\"}]},\"tools\":{\"functionDeclarations\":[{\"name\":\"generateWorkout\",\"description\":\"Creates and displays a personalized workout plan. Call this when you have: fitness level, goal, equipment, session duration, workout focus, space/location, and injury status. This displays the workout to the user.\",\"parameters\":{\"required\":[\"fitnessLevel\",\"fitnessGoal\",\"equipment\",\"sessionDuration\",\"workoutFocus\",\"spaceConstraints\"],\"type\":\"object\",\"properties\":{\"fitnessLevel\":{\"description\":\"The fitness level (beginner, intermediate, advanced)\",\"type\":\"string\"},\"fitnessGoal\":{\"description\":\"Primary fitness goal (strength, hypertrophy, endurance, power, general fitness)\",\"type\":\"string\"},\"equipment\":{\"description\":\"Available equipment (bodyweight, dumbbells, barbell+rack, machines, cables, bands, etc.)\",\"type\":\"string\"},\"sessionDuration\":{\"description\":\"Available workout time in minutes\",\"type\":\"number\"},\"workoutFocus\":{\"description\":\"Workout focus (push/pull/legs, full body, specific muscle groups, etc.)\",\"type\":\"string\"},\"spaceConstraints\":{\"description\":\"Space/location constraints (home, gym, hotel room, outdoor, etc.)\",\"type\":\"string\"},\"injuries\":{\"description\":\"Any current injuries or pain to work around\",\"type\":\"string\"}}}}]},\"toolConfig\":{\"functionCallingConfig\":{\"mode\":\"AUTO\"}}}"
+                },
+                "response": {
+                  "id": "aitxt-9e2CYAkLyfBwhBtEFuHhcAzC",
+                  "timestamp": "2025-10-21T03:38:15.432Z",
+                  "modelId": "gemini-2.0-flash",
+                  "headers": {
+                    "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+                    "content-encoding": "gzip",
+                    "content-type": "application/json; charset=UTF-8",
+                    "date": "Tue, 21 Oct 2025 03:38:15 GMT",
+                    "server": "scaffolding on HTTPServer2",
+                    "server-timing": "gfet4t7; dur=819",
+                    "transfer-encoding": "chunked",
+                    "vary": "Origin, X-Origin, Referer",
+                    "x-content-type-options": "nosniff",
+                    "x-frame-options": "SAMEORIGIN",
+                    "x-xss-protection": "0"
+                  },
+                  "body": {
+                    "candidates": [
+                      {
+                        "content": {
+                          "parts": [
+                            {
+                              "text": "Sounds good! I just need to know the space/location you'll be working out in. Is that a commercial gym, home, hotel room, or outdoors?\n"
+                            }
+                          ],
+                          "role": "model"
+                        },
+                        "finishReason": "STOP",
+                        "avgLogprobs": -0.10418405532836914
+                      }
+                    ],
+                    "usageMetadata": {
+                      "promptTokenCount": 701,
+                      "candidatesTokenCount": 35,
+                      "totalTokenCount": 736,
+                      "promptTokensDetails": [
+                        {
+                          "modality": "TEXT",
+                          "tokenCount": 701
+                        }
+                      ],
+                      "candidatesTokensDetails": [
+                        {
+                          "modality": "TEXT",
+                          "tokenCount": 35
+                        }
+                      ]
+                    },
+                    "modelVersion": "gemini-2.0-flash",
+                    "responseId": "JgD3aJ_zHJ6b_uMP_pq9-Aw"
+                  },
+                  "messages": [
+                    {
+                      "role": "assistant",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Sounds good! I just need to know the space/location you'll be working out in. Is that a commercial gym, home, hotel room, or outdoors?\n"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "providerMetadata": {
+                  "google": {
+                    "groundingMetadata": null,
+                    "urlContextMetadata": null,
+                    "safetyRatings": null,
+                    "usageMetadata": {
+                      "promptTokenCount": 701,
+                      "candidatesTokenCount": 35,
+                      "totalTokenCount": 736
+                    }
+                  }
+                }
+              }
+            ],
+            "firstStepHadToolCall": false
+          },
+          "expected": "immediate_tool_call",
+          "status": "success",
+          "colOrder": 0,
+          "renderedColumns": [
+            {
+              "label": "Input",
+              "value": "Create a pull day workout. Intermediate level fitness, commercial gym with full gym access: barbells, dumbbells, kettlebells, and machines, 45 minutes, hypertrophy focused goal, no injuries."
+            },
+            {
+              "label": "Output",
+              "value": "Sounds good! I just need to know the space/location you'll be working out in. Is that a commercial gym, home, hotel room, or outdoors?\n"
+            }
+          ],
+          "createdAt": "2025-10-21 03:38:14",
+          "averageScore": 0.5,
+          "scores": [
+            {
+              "id": 527,
+              "name": "calls_tool_in_first_step",
+              "score": 0,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:38:15"
+            },
+            {
+              "id": 528,
+              "name": "no_error_or_hiccup_messages",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:38:15"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 421,
+          "duration": 1092,
+          "input": "I need a beginner full body workout, bodyweight only, 20 minutes, general fitness, home, no injuries.",
+          "output": {
+            "text": "Alright, I'm generating your bodyweight full body workout now!\n",
+            "toolCalls": [
+              "generateWorkout"
+            ],
+            "steps": [
+              {
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Alright, I'm generating your bodyweight full body workout now!\n"
+                  },
+                  {
+                    "type": "tool-call",
+                    "toolCallId": "q6Tz6Bm2yf0t4ni1",
+                    "toolName": "generateWorkout",
+                    "input": {
+                      "sessionDuration": 20,
+                      "fitnessLevel": "beginner",
+                      "spaceConstraints": "home",
+                      "injuries": null,
+                      "fitnessGoal": "general fitness",
+                      "equipment": "bodyweight",
+                      "workoutFocus": "full body"
+                    },
+                    "dynamic": true,
+                    "invalid": true,
+                    "error": {
+                      "name": "AI_InvalidToolInputError",
+                      "cause": {
+                        "name": "AI_TypeValidationError",
+                        "cause": {
+                          "name": "ZodError",
+                          "message": "[\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"injuries\"\n    ],\n    \"message\": \"Invalid input: expected string, received null\"\n  }\n]"
+                        },
+                        "value": {
+                          "sessionDuration": 20,
+                          "fitnessLevel": "beginner",
+                          "spaceConstraints": "home",
+                          "injuries": null,
+                          "fitnessGoal": "general fitness",
+                          "equipment": "bodyweight",
+                          "workoutFocus": "full body"
+                        }
+                      },
+                      "toolInput": "{\"sessionDuration\":20,\"fitnessLevel\":\"beginner\",\"spaceConstraints\":\"home\",\"injuries\":null,\"fitnessGoal\":\"general fitness\",\"equipment\":\"bodyweight\",\"workoutFocus\":\"full body\"}",
+                      "toolName": "generateWorkout"
+                    }
+                  },
+                  {
+                    "type": "tool-error",
+                    "toolCallId": "q6Tz6Bm2yf0t4ni1",
+                    "toolName": "generateWorkout",
+                    "input": {
+                      "sessionDuration": 20,
+                      "fitnessLevel": "beginner",
+                      "spaceConstraints": "home",
+                      "injuries": null,
+                      "fitnessGoal": "general fitness",
+                      "equipment": "bodyweight",
+                      "workoutFocus": "full body"
+                    },
+                    "error": "Invalid input for tool generateWorkout: Type validation failed: Value: {\"sessionDuration\":20,\"fitnessLevel\":\"beginner\",\"spaceConstraints\":\"home\",\"injuries\":null,\"fitnessGoal\":\"general fitness\",\"equipment\":\"bodyweight\",\"workoutFocus\":\"full body\"}.\nError message: [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"injuries\"\n    ],\n    \"message\": \"Invalid input: expected string, received null\"\n  }\n]",
+                    "dynamic": true
+                  }
+                ],
+                "finishReason": "tool-calls",
+                "usage": {
+                  "inputTokens": 686,
+                  "outputTokens": 41,
+                  "totalTokens": 727
+                },
+                "warnings": [],
+                "request": {
+                  "body": "{\"generationConfig\":{\"temperature\":0},\"contents\":[{\"role\":\"user\",\"parts\":[{\"text\":\"I need a beginner full body workout, bodyweight only, 20 minutes, general fitness, home, no injuries.\"}]}],\"systemInstruction\":{\"parts\":[{\"text\":\"\\nYou are Coach Nova, an AI strength coach created by LiftLab. You help users design personalized workout plans by gathering their requirements and generating workouts using the generateWorkout tool.\\n\\n## Core Behavior\\n\\nYou maintain an encouraging, concise coaching tone while staying strictly focused on fitness, training, and health topics. Politely deflect any non-fitness questions.\\n\\n## Information Gathering\\n\\nBefore generating a workout, collect these essential details:\\n- Fitness goal (strength, hypertrophy, endurance, power, general fitness)\\n- Available equipment (bodyweight, dumbbells, barbell+rack, machines, cables, bands, etc.)\\n- Session duration in minutes\\n- Workout focus (push/pull/legs, full body, chest, back, legs, arms, shoulders, etc.)\\n- Space/location (home, commercial gym, hotel room, outdoor, etc.)\\n- Experience level (beginner, intermediate, advanced)\\n- Current injuries or pain (if any)\\n\\nAsk 1-3 targeted questions at a time. Prioritize missing essential information.\\n\\n## Tool Usage\\n\\nWhen you have all essential information, immediately call the generateWorkout tool. This is the ONLY way to create and display workouts.\\n\\nCRITICAL: Never describe, list, or mention specific exercises in your text response. The tool displays the complete workout. Only confirm you're generating their workout.\\n\\n## Examples\\n\\n<example>\\nUser: \\\"I want to get stronger\\\"\\nCoach Nova: \\\"Great goal! To design the perfect strength plan, I need a few details:\\n- What equipment do you have access to?\\n- How much time do you have per session?\\n- What's your experience level?\\\"\\n</example>\\n\\n<example>\\nUser: \\\"I have a full gym, 90 minutes, intermediate level, want to focus on chest\\\"\\nCoach Nova: \\\"Perfect! Two more quick questions:\\n- What's your primary goal - strength, size, or endurance?\\n- Any injuries I should know about?\\\"\\n\\nUser: \\\"Size, no injuries\\\"\\nCoach Nova: [calls generateWorkout tool immediately]\\n</example>\\n\\n<example>\\nUser: \\\"The workout looks good but can I swap incline press for flat bench?\\\"\\nCoach Nova: \\\"Absolutely! What's your reasoning for the swap - preference, equipment availability, or targeting a specific area?\\\"\\n</example>\\n\"}]},\"tools\":{\"functionDeclarations\":[{\"name\":\"generateWorkout\",\"description\":\"Creates and displays a personalized workout plan. Call this when you have: fitness level, goal, equipment, session duration, workout focus, space/location, and injury status. This displays the workout to the user.\",\"parameters\":{\"required\":[\"fitnessLevel\",\"fitnessGoal\",\"equipment\",\"sessionDuration\",\"workoutFocus\",\"spaceConstraints\"],\"type\":\"object\",\"properties\":{\"fitnessLevel\":{\"description\":\"The fitness level (beginner, intermediate, advanced)\",\"type\":\"string\"},\"fitnessGoal\":{\"description\":\"Primary fitness goal (strength, hypertrophy, endurance, power, general fitness)\",\"type\":\"string\"},\"equipment\":{\"description\":\"Available equipment (bodyweight, dumbbells, barbell+rack, machines, cables, bands, etc.)\",\"type\":\"string\"},\"sessionDuration\":{\"description\":\"Available workout time in minutes\",\"type\":\"number\"},\"workoutFocus\":{\"description\":\"Workout focus (push/pull/legs, full body, specific muscle groups, etc.)\",\"type\":\"string\"},\"spaceConstraints\":{\"description\":\"Space/location constraints (home, gym, hotel room, outdoor, etc.)\",\"type\":\"string\"},\"injuries\":{\"description\":\"Any current injuries or pain to work around\",\"type\":\"string\"}}}}]},\"toolConfig\":{\"functionCallingConfig\":{\"mode\":\"AUTO\"}}}"
+                },
+                "response": {
+                  "id": "aitxt-lX6XEmlW3j1yyhxd6h2JlZEA",
+                  "timestamp": "2025-10-21T03:38:15.548Z",
+                  "modelId": "gemini-2.0-flash",
+                  "headers": {
+                    "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+                    "content-encoding": "gzip",
+                    "content-type": "application/json; charset=UTF-8",
+                    "date": "Tue, 21 Oct 2025 03:38:15 GMT",
+                    "server": "scaffolding on HTTPServer2",
+                    "server-timing": "gfet4t7; dur=961",
+                    "transfer-encoding": "chunked",
+                    "vary": "Origin, X-Origin, Referer",
+                    "x-content-type-options": "nosniff",
+                    "x-frame-options": "SAMEORIGIN",
+                    "x-xss-protection": "0"
+                  },
+                  "body": {
+                    "candidates": [
+                      {
+                        "content": {
+                          "parts": [
+                            {
+                              "text": "Alright, I'm generating your bodyweight full body workout now!\n"
+                            },
+                            {
+                              "functionCall": {
+                                "name": "generateWorkout",
+                                "args": {
+                                  "sessionDuration": 20,
+                                  "fitnessLevel": "beginner",
+                                  "spaceConstraints": "home",
+                                  "injuries": null,
+                                  "fitnessGoal": "general fitness",
+                                  "equipment": "bodyweight",
+                                  "workoutFocus": "full body"
+                                }
+                              }
+                            }
+                          ],
+                          "role": "model"
+                        },
+                        "finishReason": "STOP",
+                        "avgLogprobs": -0.04699447969111001
+                      }
+                    ],
+                    "usageMetadata": {
+                      "promptTokenCount": 686,
+                      "candidatesTokenCount": 41,
+                      "totalTokenCount": 727,
+                      "promptTokensDetails": [
+                        {
+                          "modality": "TEXT",
+                          "tokenCount": 686
+                        }
+                      ],
+                      "candidatesTokensDetails": [
+                        {
+                          "modality": "TEXT",
+                          "tokenCount": 41
+                        }
+                      ]
+                    },
+                    "modelVersion": "gemini-2.0-flash",
+                    "responseId": "JgD3aODUHtDd_uMPtb_JkAs"
+                  },
+                  "messages": [
+                    {
+                      "role": "assistant",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Alright, I'm generating your bodyweight full body workout now!\n"
+                        },
+                        {
+                          "type": "tool-call",
+                          "toolCallId": "q6Tz6Bm2yf0t4ni1",
+                          "toolName": "generateWorkout",
+                          "input": {
+                            "sessionDuration": 20,
+                            "fitnessLevel": "beginner",
+                            "spaceConstraints": "home",
+                            "injuries": null,
+                            "fitnessGoal": "general fitness",
+                            "equipment": "bodyweight",
+                            "workoutFocus": "full body"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "role": "tool",
+                      "content": [
+                        {
+                          "type": "tool-result",
+                          "toolCallId": "q6Tz6Bm2yf0t4ni1",
+                          "toolName": "generateWorkout",
+                          "output": {
+                            "type": "error-text",
+                            "value": "Invalid input for tool generateWorkout: Type validation failed: Value: {\"sessionDuration\":20,\"fitnessLevel\":\"beginner\",\"spaceConstraints\":\"home\",\"injuries\":null,\"fitnessGoal\":\"general fitness\",\"equipment\":\"bodyweight\",\"workoutFocus\":\"full body\"}.\nError message: [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"injuries\"\n    ],\n    \"message\": \"Invalid input: expected string, received null\"\n  }\n]"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "providerMetadata": {
+                  "google": {
+                    "groundingMetadata": null,
+                    "urlContextMetadata": null,
+                    "safetyRatings": null,
+                    "usageMetadata": {
+                      "promptTokenCount": 686,
+                      "candidatesTokenCount": 41,
+                      "totalTokenCount": 727
+                    }
+                  }
+                }
+              }
+            ],
+            "firstStepHadToolCall": true
+          },
+          "expected": "immediate_tool_call",
+          "status": "success",
+          "colOrder": 1,
+          "renderedColumns": [
+            {
+              "label": "Input",
+              "value": "I need a beginner full body workout, bodyweight only, 20 minutes, general fitness, home, no injuries."
+            },
+            {
+              "label": "Output",
+              "value": "Alright, I'm generating your bodyweight full body workout now!\n"
+            }
+          ],
+          "createdAt": "2025-10-21 03:38:14",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 529,
+              "name": "calls_tool_in_first_step",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:38:15"
+            },
+            {
+              "id": 530,
+              "name": "no_error_or_hiccup_messages",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:38:15"
+            }
+          ],
+          "traces": []
+        }
+      ]
+    }
+  ]
+}

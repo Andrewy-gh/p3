@@ -39,7 +39,7 @@ type TaskOutput = {
  */
 
 // Test 1-2: Basic tool calling & exercise prohibition
-evalite.skip('Tool Calling - Basic Behavior', {
+evalite('Tool Calling - Basic Behavior', {
   data: () => [
     {
       id: 'test-1-calls-tool-with-complete-info',

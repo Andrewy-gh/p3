@@ -1,0 +1,262 @@
+{
+  "run": {
+    "id": 53,
+    "runType": "full",
+    "createdAt": "2025-10-21 03:23:07"
+  },
+  "evals": [
+    {
+      "id": 95,
+      "name": "Tool Calling - Basic Behavior",
+      "filepath": "C:/E/2025/p3/backend/src/evals/tool-calling/tool-calling-basic.eval.ts",
+      "duration": 0,
+      "status": "success",
+      "variantName": null,
+      "variantGroup": null,
+      "createdAt": "2025-10-21 03:23:07",
+      "averageScore": 0.75,
+      "results": [
+        {
+          "id": 395,
+          "duration": 1096,
+          "input": "I want a chest workout. I have dumbbells, 45 minutes, intermediate level, hypertrophy goal, home gym, no injuries.",
+          "output": {
+            "text": "Got it! I have everything I need. I'm generating your dumbbell chest workout now.\n",
+            "toolCalls": [
+              "generateWorkout"
+            ],
+            "response": {
+              "id": "aitxt-XpXrxkOt7kMP8u763JBUJLJN",
+              "timestamp": "2025-10-21T03:23:08.912Z",
+              "modelId": "gemini-2.0-flash",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+                "content-encoding": "gzip",
+                "content-type": "application/json; charset=UTF-8",
+                "date": "Tue, 21 Oct 2025 03:23:08 GMT",
+                "server": "scaffolding on HTTPServer2",
+                "server-timing": "gfet4t7; dur=890",
+                "transfer-encoding": "chunked",
+                "vary": "Origin, X-Origin, Referer",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "x-xss-protection": "0"
+              },
+              "body": {
+                "candidates": [
+                  {
+                    "content": {
+                      "parts": [
+                        {
+                          "text": "Got it! I have everything I need. I'm generating your dumbbell chest workout now.\n"
+                        },
+                        {
+                          "functionCall": {
+                            "name": "generateWorkout",
+                            "args": {
+                              "fitnessLevel": "intermediate",
+                              "injuries": null,
+                              "workoutFocus": "chest",
+                              "sessionDuration": 45,
+                              "spaceConstraints": "home",
+                              "fitnessGoal": "hypertrophy",
+                              "equipment": "dumbbells"
+                            }
+                          }
+                        }
+                      ],
+                      "role": "model"
+                    },
+                    "finishReason": "STOP",
+                    "avgLogprobs": -0.09606279026378285
+                  }
+                ],
+                "usageMetadata": {
+                  "promptTokenCount": 688,
+                  "candidatesTokenCount": 44,
+                  "totalTokenCount": 732,
+                  "promptTokensDetails": [
+                    {
+                      "modality": "TEXT",
+                      "tokenCount": 688
+                    }
+                  ],
+                  "candidatesTokensDetails": [
+                    {
+                      "modality": "TEXT",
+                      "tokenCount": 44
+                    }
+                  ]
+                },
+                "modelVersion": "gemini-2.0-flash",
+                "responseId": "m_z2aP3qOIS9_uMPrf-c0Qk"
+              },
+              "messages": [
+                {
+                  "role": "assistant",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Got it! I have everything I need. I'm generating your dumbbell chest workout now.\n"
+                    },
+                    {
+                      "type": "tool-call",
+                      "toolCallId": "3nEpv65Pzh4PRnnA",
+                      "toolName": "generateWorkout",
+                      "input": {
+                        "fitnessLevel": "intermediate",
+                        "injuries": null,
+                        "workoutFocus": "chest",
+                        "sessionDuration": 45,
+                        "spaceConstraints": "home",
+                        "fitnessGoal": "hypertrophy",
+                        "equipment": "dumbbells"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "role": "tool",
+                  "content": [
+                    {
+                      "type": "tool-result",
+                      "toolCallId": "3nEpv65Pzh4PRnnA",
+                      "toolName": "generateWorkout",
+                      "output": {
+                        "type": "error-text",
+                        "value": "Invalid input for tool generateWorkout: Type validation failed: Value: {\"fitnessLevel\":\"intermediate\",\"injuries\":null,\"workoutFocus\":\"chest\",\"sessionDuration\":45,\"spaceConstraints\":\"home\",\"fitnessGoal\":\"hypertrophy\",\"equipment\":\"dumbbells\"}.\nError message: [\n  {\n    \"expected\": \"string\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"injuries\"\n    ],\n    \"message\": \"Invalid input: expected string, received null\"\n  }\n]"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "expected": "calls_tool_no_exercises",
+          "status": "success",
+          "colOrder": 0,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:23:07",
+          "averageScore": 1,
+          "scores": [
+            {
+              "id": 482,
+              "name": "calls_generateWorkout_tool",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:23:08"
+            },
+            {
+              "id": 483,
+              "name": "no_exercise_names_in_text",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:23:08"
+            }
+          ],
+          "traces": []
+        },
+        {
+          "id": 396,
+          "duration": 710,
+          "input": "Generate me a leg day workout. Advanced level, barbell and rack available, 60 minutes, strength goal, commercial gym, no injuries.",
+          "output": {
+            "text": "Perfect! I'm generating your leg day workout now.\n",
+            "toolCalls": [],
+            "response": {
+              "id": "aitxt-MpSSc1R8tFYXNjgmKLM5Jy5C",
+              "timestamp": "2025-10-21T03:23:08.637Z",
+              "modelId": "gemini-2.0-flash",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+                "content-encoding": "gzip",
+                "content-type": "application/json; charset=UTF-8",
+                "date": "Tue, 21 Oct 2025 03:23:08 GMT",
+                "server": "scaffolding on HTTPServer2",
+                "server-timing": "gfet4t7; dur=589",
+                "transfer-encoding": "chunked",
+                "vary": "Origin, X-Origin, Referer",
+                "x-content-type-options": "nosniff",
+                "x-frame-options": "SAMEORIGIN",
+                "x-xss-protection": "0"
+              },
+              "body": {
+                "candidates": [
+                  {
+                    "content": {
+                      "parts": [
+                        {
+                          "text": "Perfect! I'm generating your leg day workout now.\n"
+                        }
+                      ],
+                      "role": "model"
+                    },
+                    "finishReason": "STOP",
+                    "avgLogprobs": -0.18094244370093712
+                  }
+                ],
+                "usageMetadata": {
+                  "promptTokenCount": 690,
+                  "candidatesTokenCount": 13,
+                  "totalTokenCount": 703,
+                  "promptTokensDetails": [
+                    {
+                      "modality": "TEXT",
+                      "tokenCount": 690
+                    }
+                  ],
+                  "candidatesTokensDetails": [
+                    {
+                      "modality": "TEXT",
+                      "tokenCount": 13
+                    }
+                  ]
+                },
+                "modelVersion": "gemini-2.0-flash",
+                "responseId": "m_z2aPbSOpyV_uMP28LsSA"
+              },
+              "messages": [
+                {
+                  "role": "assistant",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Perfect! I'm generating your leg day workout now.\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "expected": "calls_tool_no_exercises",
+          "status": "success",
+          "colOrder": 1,
+          "renderedColumns": [],
+          "createdAt": "2025-10-21 03:23:07",
+          "averageScore": 0.5,
+          "scores": [
+            {
+              "id": 480,
+              "name": "calls_generateWorkout_tool",
+              "score": 0,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:23:08"
+            },
+            {
+              "id": 481,
+              "name": "no_exercise_names_in_text",
+              "score": 1,
+              "description": null,
+              "metadata": null,
+              "createdAt": "2025-10-21 03:23:08"
+            }
+          ],
+          "traces": []
+        }
+      ]
+    }
+  ]
+}

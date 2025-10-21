@@ -13,7 +13,7 @@ const google = createGoogleGenerativeAI({
  *
  * Tests 9-10: Ensures the AI agent calls tools immediately without hesitation
  */
-evalite.skip('Tool Calling - Reliability', {
+evalite('Tool Calling - Reliability', {
   data: () => [
     {
       id: 'test-9-no-hesitation',

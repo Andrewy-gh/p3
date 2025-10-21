@@ -27,7 +27,7 @@ type TaskOutput = {
  *
  * Tests 5-8: Ensures the AI agent handles conversation flow properly and modifications
  */
-evalite.skip<ConversationTestData, TaskOutput, string>('Tool Calling - Conversation Flow', {
+evalite<ConversationTestData, TaskOutput, string>('Tool Calling - Conversation Flow', {
   data: () => [
     {
       input: {
