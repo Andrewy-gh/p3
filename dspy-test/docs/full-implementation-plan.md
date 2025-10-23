@@ -1,17 +1,120 @@
 # Full DSPy Implementation Plan
 
+## Design Decisions & Rationale
+
+### Signature Detail Level
+- **Approach**: Moderately detailed signatures (not vague, not overly prescriptive)
+- **Rationale**: Provides clear constraints for the model while leaving room for MIPROv2 optimizer to refine instructions
+- **Implementation**:
+  - Include explicit essential fields list in ChatAgent docstring
+  - Use Pydantic models for structural type constraints
+  - Let optimizer discover best phrasing and few-shot examples
+
+### Type Safety with Pydantic
+- **Decision**: Use Pydantic models for structured outputs
+- **Benefits**:
+  - Type validation (weight as number, not string)
+  - Clear schema enforcement
+  - Better error messages
+  - Compatible with DSPy optimizers
+- **Complexity**: Minimal (~10-15 lines of model definitions)
+
+### Baseline Fitness Assessment (Option A)
+- **Approach**: Simple but personalized
+- **Process**:
+  1. Ask self-reported level (beginner/intermediate/advanced)
+  2. Ask for ONE primary lift PR (e.g., bench press)
+  3. Use that to calibrate all other exercise weights
+- **Rationale**: Personable without being tedious, avoids asking PRs for every exercise
+
+### Essential Information Fields (Validated)
+Based on industry research, these 7 fields are essential for workout programming:
+1. **Fitness goal**: Determines rep ranges and rest periods
+2. **Equipment**: Determines exercise selection
+3. **Duration**: Time constraint for programming
+4. **Focus**: Muscle group targeting
+5. **Experience level**: Exercise difficulty and progression
+6. **Space**: Exercise feasibility
+7. **Injuries**: Safety constraints
+
+Optional fields (ask only if time allows or user mentions):
+- Training frequency (days/week)
+- Training history (years)
+- Recovery factors (sleep, stress) - only if user mentions issues
+
+## Implementation Priority (Before Optimization)
+
+### High Priority (Do Now - 1-2 hours)
+1. ✅ Add Pydantic models for type safety (20 minutes)
+2. ✅ Refine ChatAgent signature with essential fields list (10 minutes)
+3. ✅ Add `primary_lift_pr` field to ExtractUserInfo (5 minutes)
+4. ✅ Update WorkoutGenerator to use Pydantic Workout model (15 minutes)
+5. ✅ Test app with refined signatures (30 minutes)
+
+### Medium Priority (Before MIPROv2)
+1. Create 2-3 example conversations showing ideal short interactions
+2. Collect real conversation logs (5-10 test runs)
+3. Define metrics for "good" workout generation
+
+### Low Priority (Let Optimizer Handle)
+1. Fine-tuning exact question phrasing
+2. Adjusting instruction order
+3. Few-shot example selection
+
 ## Phase 1: Module Setup
 
-### 1.1 Signatures
+### 1.1 Pydantic Models (Type Safety)
+```python
+from pydantic import BaseModel, Field
+from typing import Optional, List, Literal
+
+class WorkoutSet(BaseModel):
+    """Individual set within an exercise"""
+    reps: int = Field(description="Number of repetitions")
+    setType: Literal["warmup", "working"] = Field(description="Set type")
+    weight: Optional[float] = Field(
+        None,
+        description="Weight in lbs/kg. Omit ONLY for bodyweight exercises"
+    )
+
+class Exercise(BaseModel):
+    """Single exercise with multiple sets"""
+    name: str = Field(description="Exercise name (real, established exercises only)")
+    sets: List[WorkoutSet] = Field(description="List of sets for this exercise")
+
+class Workout(BaseModel):
+    """Complete workout plan"""
+    exercises: List[Exercise] = Field(description="List of exercises in workout")
+    notes: Optional[str] = Field(None, description="Additional guidance or safety notes")
+    workoutFocus: Optional[str] = Field(None, description="Workout focus area")
+```
+
+### 1.2 Signatures
 ```python
 # ChatAgent - conversational layer
 class ChatAgent(dspy.Signature):
-    """Coach Nova: encouraging fitness coach, stays on-topic"""
+    """Coach Nova: efficient fitness coach that quickly gathers essential workout info.
+
+    ESSENTIAL INFO (prioritize these):
+    - Fitness goal (strength/hypertrophy/endurance/power/general)
+    - Equipment (bodyweight/dumbbells/barbell/machines/cables/bands)
+    - Duration (minutes per session)
+    - Focus (push/pull/legs/chest/back/arms/shoulders/full_body)
+    - Experience level (beginner/intermediate/advanced)
+    - Space (home/gym/hotel/outdoor)
+    - Injuries (any current pain/limitations)
+
+    OPTIONAL INFO (only ask if user mentions or time allows):
+    - Diet, nutrition, sleep, recovery details
+    - Training frequency or history
+
+    Ask 1-2 targeted questions max. Set should_extract=true once you have all essential fields.
+    """
     conversation_history = dspy.InputField(desc="All prior messages")
     user_message = dspy.InputField(desc="Current user input")
 
-    response = dspy.OutputField(desc="Coaching response, 1-3 questions max, deflect off-topic")
-    should_extract = dspy.OutputField(desc="true if have enough info to extract")
+    response = dspy.OutputField(desc="Coaching response, max 2 questions, focus on essential info")
+    should_extract = dspy.OutputField(desc="true if all essential fields gathered")
 
 # InfoExtractor - structure conversation into fields
 class ExtractUserInfo(dspy.Signature):
@@ -25,10 +128,11 @@ class ExtractUserInfo(dspy.Signature):
     duration = dspy.OutputField(desc="session minutes as number or null")
     space = dspy.OutputField(desc="home|gym|hotel|outdoor or null")
     injuries = dspy.OutputField(desc="any limitations/pain or null")
+    primary_lift_pr = dspy.OutputField(desc="User's PR for main lift (e.g. '205lb bench') or null. Use to calibrate weights.")
 
 # WorkoutGenerator - create structured plan
 class GenerateWorkout(dspy.Signature):
-    """Generate workout matching requirements. JSON output."""
+    """Generate workout matching requirements. Uses Pydantic model for type-safe output."""
     fitness_level = dspy.InputField()
     goal = dspy.InputField()
     focus = dspy.InputField()
@@ -36,13 +140,15 @@ class GenerateWorkout(dspy.Signature):
     duration = dspy.InputField()
     space = dspy.InputField()
     injuries = dspy.InputField()
+    primary_lift_pr = dspy.InputField()
 
-    workout_json = dspy.OutputField(desc="JSON: {exercises: [{name, sets: [{reps, setType, weight?}]}], notes?, workoutFocus?}")
+    workout: Workout = dspy.OutputField(desc="Complete workout plan with type-safe structure")
 ```
 
-### 1.2 Modules
+### 1.3 Modules
 ```python
 class CoachAgent(dspy.Module):
+    """Interactive coach that converses with users to gather workout requirements"""
     def __init__(self):
         super().__init__()
         self.chat = dspy.ChainOfThought(ChatAgent)
@@ -54,6 +160,7 @@ class CoachAgent(dspy.Module):
         )
 
 class InfoExtractor(dspy.Module):
+    """Extracts structured workout parameters from conversation history"""
     def __init__(self):
         super().__init__()
         self.extract = dspy.ChainOfThought(ExtractUserInfo)
@@ -62,6 +169,7 @@ class InfoExtractor(dspy.Module):
         return self.extract(conversation_history=conversation_history)
 
 class WorkoutGenerator(dspy.Module):
+    """Generates structured workout plan using Pydantic model for type safety"""
     def __init__(self):
         super().__init__()
         self.generate = dspy.ChainOfThought(GenerateWorkout)
@@ -70,56 +178,174 @@ class WorkoutGenerator(dspy.Module):
         return self.generate(**user_requirements)
 ```
 
+### 1.4 Weight Calculation Strategy
+Based on primary_lift_pr field (Option A approach):
+
+**If user provides PR (e.g., "205lb bench"):**
+- Use as reference point for that user's strength level
+- Calculate working weights as percentages of PR:
+  - Warmup sets: 40-60% of PR
+  - Working sets (strength): 80-90% of PR
+  - Working sets (hypertrophy): 65-80% of PR
+  - Working sets (endurance): 50-65% of PR
+
+**If no PR provided:**
+- Use fitness level defaults:
+  - Beginner: "light" weights, focus on form
+  - Intermediate: "moderate" weights
+  - Advanced: "moderate-heavy" weights
+- Or use strength standards database (strengthlevel.com data)
+
+**Implementation Note:**
+The WorkoutGenerator signature should receive `primary_lift_pr` and use it to calibrate weights for similar exercises (e.g., if bench PR given, can estimate incline press, overhead press, etc. using standard ratios).
+```
+
 ## Phase 2: Application Loop
 
 ```python
 # main.py or coach_app.py
+import os
 import dspy
+from modules import CoachAgent, InfoExtractor, WorkoutGenerator
 
-dspy.configure(lm=dspy.LM("gemini/gemini-2.0-flash", api_key=api_key))
+# Configure DSPy with Gemini model
+api_key = os.getenv("GOOGLE_GENERATIVE_AI_API_KEY")
+if not api_key:
+    print("Error: GOOGLE_GENERATIVE_AI_API_KEY environment variable not set")
+    exit(1)
 
+dspy.configure(lm=dspy.LM("gemini/gemini-2.0-flash-exp", api_key=api_key))
+
+# Initialize modules
 coach = CoachAgent()
 extractor = InfoExtractor()
 generator = WorkoutGenerator()
 
+# Conversation history
 history = []
 
+print("=" * 60)
+print("Welcome to Coach Nova - Your AI Fitness Coach!")
+print("=" * 60)
+print("Type 'exit' to quit at any time.\n")
+
 while True:
-    user_msg = input("You: ")
-    if user_msg == "exit":
+    # Get user input
+    try:
+        user_msg = input("You: ").strip()
+    except (EOFError, KeyboardInterrupt):
+        print("\n\nGoodbye! Stay fit!")
+        break
+
+    if not user_msg:
+        continue
+
+    if user_msg.lower() == "exit":
+        print("\nGoodbye! Stay fit!")
         break
 
     # Get coach response
-    result = coach(
-        conversation_history=str(history),
-        user_message=user_msg
-    )
+    try:
+        result = coach(
+            conversation_history=str(history),
+            user_message=user_msg
+        )
 
-    print(f"Coach Nova: {result.response}")
-    history.append({"user": user_msg, "coach": result.response})
+        print(f"\nCoach Nova: {result.response}\n")
+        history.append({"user": user_msg, "coach": result.response})
 
-    # Check if ready to generate
-    if result.should_extract == "true":
-        extracted = extractor(conversation_history=str(history))
+        # Check if ready to generate workout
+        if result.should_extract.lower() == "true":
+            print("\n[Analyzing your requirements...]\n")
 
-        # Check all required fields present
-        if all([extracted.goal, extracted.equipment, extracted.duration, extracted.focus]):
-            workout = generator(
-                fitness_level=extracted.fitness_level or "intermediate",
-                goal=extracted.goal,
-                focus=extracted.focus,
-                equipment=extracted.equipment,
-                duration=extracted.duration,
-                space=extracted.space or "gym",
-                injuries=extracted.injuries or "none"
-            )
-            print(f"\nWorkout:\n{workout.workout_json}")
-            break
+            # Extract structured information
+            extracted = extractor(conversation_history=str(history))
 
-dspy.inspect_history()
+            # Check if all required fields are present
+            required_fields = {
+                "goal": extracted.goal,
+                "equipment": extracted.equipment,
+                "duration": extracted.duration,
+                "focus": extracted.focus
+            }
+
+            missing_fields = [k for k, v in required_fields.items() if not v or v == "null"]
+
+            if not missing_fields:
+                print("[Generating your personalized workout...]\n")
+
+                # Generate workout with Pydantic output
+                workout = generator(
+                    fitness_level=extracted.fitness_level if extracted.fitness_level != "null" else "intermediate",
+                    goal=extracted.goal,
+                    focus=extracted.focus,
+                    equipment=extracted.equipment,
+                    duration=extracted.duration,
+                    space=extracted.space if extracted.space != "null" else "gym",
+                    injuries=extracted.injuries if extracted.injuries != "null" else "none",
+                    primary_lift_pr=extracted.primary_lift_pr if extracted.primary_lift_pr != "null" else "none"
+                )
+
+                # Workout is now a Pydantic Workout object, can access fields directly
+                print("=" * 60)
+                print("YOUR PERSONALIZED WORKOUT")
+                print("=" * 60)
+                print(f"\nFocus: {workout.workout.workoutFocus}\n")
+
+                for exercise in workout.workout.exercises:
+                    print(f"{exercise.name}:")
+                    for i, set_obj in enumerate(exercise.sets, 1):
+                        weight_str = f" @ {set_obj.weight}lbs" if set_obj.weight else ""
+                        print(f"  Set {i}: {set_obj.reps} reps ({set_obj.setType}){weight_str}")
+                    print()
+
+                if workout.workout.notes:
+                    print(f"Notes: {workout.workout.notes}")
+                print("=" * 60)
+
+                # Ask if user wants to continue
+                cont = input("\nWould you like to create another workout? (yes/no): ").strip().lower()
+                if cont not in ["yes", "y"]:
+                    print("\nGoodbye! Stay fit!")
+                    break
+                else:
+                    # Reset history for new workout
+                    history = []
+                    print("\n" + "=" * 60)
+                    print("Let's create a new workout!")
+                    print("=" * 60 + "\n")
+            else:
+                # Not enough information yet, continue conversation
+                print(f"[Still gathering info - missing: {', '.join(missing_fields)}]\n")
+
+    except Exception as e:
+        print(f"\nError: {e}")
+        print("Let's try again.\n")
+
+# Show DSPy interaction history for debugging/learning
+print("\n" + "=" * 60)
+print("Session Complete - Inspecting DSPy History")
+print("=" * 60)
+dspy.inspect_history(n=3)
 ```
 
 ## Phase 3: Training Data Creation
+
+### 3.0 Test Refined Implementation First
+**Before creating training data, test the refined signatures:**
+1. Implement Pydantic models in `modules.py`
+2. Update signatures with moderately detailed docstrings
+3. Add `primary_lift_pr` field to ExtractUserInfo
+4. Run the app 3-5 times with different scenarios
+5. Observe conversation length and quality improvements
+6. Document what works well and what doesn't
+
+**Expected improvements:**
+- Shorter conversations (target: 5-10 exchanges vs. 18 in original)
+- More focused questions (avoiding diet/sleep tangents)
+- Type-safe workout outputs (numbers instead of strings)
+
+**Save test logs** to inform training data creation.
 
 ### 3.1 Synthetic Examples (start with 20-30)
 
@@ -133,6 +359,7 @@ dspy.inspect_history()
 - "Build muscle, dumbbells, 45 min" → goal=hypertrophy, equipment=dumbbells, duration=45
 - "Beginner, home, no equipment" → level=beginner, space=home, equipment=bodyweight
 - "Chest day at gym, 60 minutes, advanced" → focus=chest, space=gym, duration=60, level=advanced
+- "Intermediate, bench PR is 205lbs" → level=intermediate, primary_lift_pr="205lb bench"
 
 **WorkoutGenerator examples:**
 - Strength + barbell + 60min → 3-5 exercises, 1-6 reps, warmup sets
@@ -590,6 +817,82 @@ dspy-test/
    - Eval scorers can be directly converted to DSPy metrics
    - **Recommended approach**: Hybrid Option C (Phase 3.5.4) for incremental integration
 
+## Design Decisions Summary (Based on User Feedback - 2025-10-22)
+
+### Issue 1: Long Conversations & Tangential Questions
+**Problem:** Original implementation took 18 exchanges with diet/sleep tangents before generating workout.
+
+**Solution:**
+- Updated ChatAgent signature with explicit essential fields list (7 fields)
+- Added guidance to avoid optional topics (diet, sleep, recovery) unless user mentions
+- Reduced max questions from 3 to 1-2 per turn
+- Target: 5-10 exchanges vs. 18
+
+**Implementation:**
+```python
+class ChatAgent(dspy.Signature):
+    """...
+    ESSENTIAL INFO (prioritize these): [7 fields listed]
+    OPTIONAL INFO (only ask if user mentions): [diet, sleep, etc.]
+    Ask 1-2 targeted questions max.
+    """
+```
+
+### Issue 2: Weight Type Mismatch
+**Problem:** Workout output had `"weight": "moderate-heavy"` (string) instead of number.
+
+**Solution:**
+- Implemented Pydantic models for type-safe structured outputs
+- `weight: Optional[float]` enforces number type
+- Clear description: "Omit ONLY for bodyweight exercises"
+
+**Implementation:**
+```python
+class WorkoutSet(BaseModel):
+    weight: Optional[float] = Field(None, description="Weight in lbs/kg. Omit ONLY for bodyweight exercises")
+
+class GenerateWorkout(dspy.Signature):
+    workout: Workout  # Pydantic model, not JSON string
+```
+
+### Issue 3: Baseline Fitness Assessment (Option A)
+**Decision:** Simple but personalized approach.
+
+**Implementation:**
+- Ask self-reported level (beginner/intermediate/advanced)
+- Ask for ONE primary lift PR (e.g., "205lb bench")
+- Use PR to calibrate all other exercise weights
+- Avoid asking PRs for every exercise (tedious)
+
+**Added field:**
+```python
+primary_lift_pr = dspy.OutputField(desc="User's PR for main lift (e.g. '205lb bench') or null. Use to calibrate weights.")
+```
+
+### Issue 4: Essential Information Validation
+**Research findings:** Industry best practices confirm 7 essential fields for workout programming.
+
+**Decision:** Keep current essential fields list (validated against fitness coaching research):
+1. Fitness goal
+2. Equipment
+3. Duration
+4. Focus
+5. Experience level
+6. Space
+7. Injuries
+
+**Optional fields** (only if user mentions): training frequency, diet, sleep, stress
+
+### Implementation Timeline
+**Before optimization:**
+1. ✅ Add Pydantic models (20 min)
+2. ✅ Refine ChatAgent signature (10 min)
+3. ✅ Add primary_lift_pr field (5 min)
+4. ✅ Test app 3-5 times (30 min)
+
+**After validation:**
+5. Run MIPROv2 optimizer on refined modules
+
 ## Unresolved Questions
 
 1. **Modification handling**: When user says "swap exercise X for Y", should:
@@ -606,12 +909,9 @@ dspy-test/
    [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
    ```
 
-3. **JSON validation**: WorkoutGenerator outputs JSON string. Should:
-   - Add validation in metric function?
-   - Use TypedPredictor for structured output?
-   - Let DSPy learn JSON format from examples?
-
-4. **Gemini 2.0 Flash support**: Is this model already supported in DSPy or need custom LM class?
+3. **~~JSON validation~~**: ✅ RESOLVED - Using Pydantic models for type-safe output
+   - WorkoutGenerator now outputs `Workout` Pydantic model instead of JSON string
+   - Type validation handled automatically by Pydantic
 
 ## MIPROv2 Best Practices
 
