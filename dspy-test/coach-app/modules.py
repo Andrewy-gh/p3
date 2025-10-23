@@ -80,10 +80,11 @@ class ExtractUserInfo(dspy.Signature):
     duration = dspy.OutputField(desc="session minutes as number or null")
     space = dspy.OutputField(desc="home|gym|hotel|outdoor or null")
     injuries = dspy.OutputField(desc="any limitations/pain or null")
+    primary_lift_pr = dspy.OutputField(desc="User's PR for main lift (e.g. '205lb bench') or null. Use to calibrate weights.")
 
 
 class GenerateWorkout(dspy.Signature):
-    """Generate workout matching requirements. JSON output."""
+    """Generate workout matching requirements. Uses Pydantic model for type-safe output."""
     fitness_level = dspy.InputField()
     goal = dspy.InputField()
     focus = dspy.InputField()
@@ -91,8 +92,9 @@ class GenerateWorkout(dspy.Signature):
     duration = dspy.InputField()
     space = dspy.InputField()
     injuries = dspy.InputField()
+    primary_lift_pr = dspy.InputField()
 
-    workout_json = dspy.OutputField(desc="JSON: {exercises: [{name, sets: [{reps, setType, weight?}]}], notes?, workoutFocus?}")
+    workout: Workout = dspy.OutputField(desc="Complete workout plan with type-safe structure")
 
 
 # ============================================================================
