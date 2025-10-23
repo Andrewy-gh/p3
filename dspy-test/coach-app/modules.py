@@ -2,12 +2,42 @@
 DSPy Modules and Signatures for Fitness Coach Application
 
 This module contains:
+- Pydantic Models: Type-safe structured output models
 - ChatAgent: Conversational layer for coaching interaction
 - InfoExtractor: Extracts structured workout requirements from conversation
 - WorkoutGenerator: Creates structured workout plans
 """
 
 import dspy
+from pydantic import BaseModel, Field
+from typing import Optional, List, Literal
+
+
+# ============================================================================
+# PYDANTIC MODELS (Type Safety)
+# ============================================================================
+
+class WorkoutSet(BaseModel):
+    """Individual set within an exercise"""
+    reps: int = Field(description="Number of repetitions")
+    setType: Literal["warmup", "working"] = Field(description="Set type")
+    weight: Optional[float] = Field(
+        None,
+        description="Weight in lbs/kg. Omit ONLY for bodyweight exercises"
+    )
+
+
+class Exercise(BaseModel):
+    """Single exercise with multiple sets"""
+    name: str = Field(description="Exercise name (real, established exercises only)")
+    sets: List[WorkoutSet] = Field(description="List of sets for this exercise")
+
+
+class Workout(BaseModel):
+    """Complete workout plan"""
+    exercises: List[Exercise] = Field(description="List of exercises in workout")
+    notes: Optional[str] = Field(None, description="Additional guidance or safety notes")
+    workoutFocus: Optional[str] = Field(None, description="Workout focus area")
 
 
 # ============================================================================
@@ -15,12 +45,28 @@ import dspy
 # ============================================================================
 
 class ChatAgent(dspy.Signature):
-    """Coach Nova: encouraging fitness coach, stays on-topic"""
+    """Coach Nova: efficient fitness coach that quickly gathers essential workout info.
+
+    ESSENTIAL INFO (prioritize these):
+    - Fitness goal (strength/hypertrophy/endurance/power/general)
+    - Equipment (bodyweight/dumbbells/barbell/machines/cables/bands)
+    - Duration (minutes per session)
+    - Focus (push/pull/legs/chest/back/arms/shoulders/full_body)
+    - Experience level (beginner/intermediate/advanced)
+    - Space (home/gym/hotel/outdoor)
+    - Injuries (any current pain/limitations)
+
+    OPTIONAL INFO (only ask if user mentions or time allows):
+    - Diet, nutrition, sleep, recovery details
+    - Training frequency or history
+
+    Ask 1-2 targeted questions max. Set should_extract=true once you have all essential fields.
+    """
     conversation_history = dspy.InputField(desc="All prior messages")
     user_message = dspy.InputField(desc="Current user input")
 
-    response = dspy.OutputField(desc="Coaching response, 1-3 questions max, deflect off-topic")
-    should_extract = dspy.OutputField(desc="true if have enough info to extract")
+    response = dspy.OutputField(desc="Coaching response, max 2 questions, focus on essential info")
+    should_extract = dspy.OutputField(desc="true if all essential fields gathered")
 
 
 class ExtractUserInfo(dspy.Signature):
