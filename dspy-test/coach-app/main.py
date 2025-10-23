@@ -79,7 +79,7 @@ def main():
                 if not missing_fields:
                     print("[Generating your personalized workout...]\n")
 
-                    # Generate workout
+                    # Generate workout with Pydantic output
                     workout = generator(
                         fitness_level=extracted.fitness_level if extracted.fitness_level != "null" else "intermediate",
                         goal=extracted.goal,
@@ -87,13 +87,25 @@ def main():
                         equipment=extracted.equipment,
                         duration=extracted.duration,
                         space=extracted.space if extracted.space != "null" else "gym",
-                        injuries=extracted.injuries if extracted.injuries != "null" else "none"
+                        injuries=extracted.injuries if extracted.injuries != "null" else "none",
+                        primary_lift_pr=extracted.primary_lift_pr if extracted.primary_lift_pr != "null" else "none"
                     )
 
+                    # Display workout (Pydantic object formatting)
                     print("=" * 60)
                     print("YOUR PERSONALIZED WORKOUT")
                     print("=" * 60)
-                    print(f"\n{workout.workout_json}\n")
+                    print(f"\nFocus: {workout.workout.workoutFocus}\n")
+
+                    for exercise in workout.workout.exercises:
+                        print(f"{exercise.name}:")
+                        for i, set_obj in enumerate(exercise.sets, 1):
+                            weight_str = f" @ {set_obj.weight}lbs" if set_obj.weight else ""
+                            print(f"  Set {i}: {set_obj.reps} reps ({set_obj.setType}){weight_str}")
+                        print()
+
+                    if workout.workout.notes:
+                        print(f"Notes: {workout.workout.notes}")
                     print("=" * 60)
 
                     # Ask if user wants to continue
