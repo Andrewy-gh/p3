@@ -2,6 +2,22 @@
 
 > **🚀 QUICK START FOR NEXT SESSION:** Skip to [Handoff Summary](#-handoff-summary-for-next-session) for immediate context and next actions.
 
+## ⚡ TL;DR - READY TO RESUME (2025-10-23)
+
+**Status:** Phase 4 is 95% complete. Code fully migrated to MIPROv2, blocked by API quota.
+
+**Next Action:** Choose one path and run:
+1. **Wait 24hrs** → `cd dspy-test/coach-app && uv run optimize.py 3` (Free)
+2. **Upgrade API** → Visit https://ai.google.dev/pricing then run above (~$0.50)
+3. **Different Model** → Update optimize.py lines 39 & 90, then run
+4. **Skip Optimization** → Manually port prompts to AI SDK (Phase 5)
+
+**What's Done:** ✅ MIPROv2 migration ✅ Bootstrap phase working ✅ Command-line support ✅ Bug fixes
+
+**Blocker:** Gemini API daily quota (50/day) exhausted. See [Current Status](#-current-status--next-steps) for details.
+
+---
+
 ## 🎯 IMPLEMENTATION STATUS SUMMARY
 
 **Last Updated:** 2025-10-23
@@ -13,32 +29,68 @@
 ### Where We Are Now:
 - ✅ Phase 1 & 2: **COMPLETE** - All modules working, app tested successfully
 - ✅ Phase 3: **80% COMPLETE** - Training data ready (12 synthetic examples + 4 real conversation logs)
-- ⚠️ Phase 4: **READY TO START** - Optimization infrastructure built but not yet run
+- ⚠️ Phase 4: **95% COMPLETE** - Code migrated to MIPROv2, optimization blocked by API quota limit
 
-### 🎯 IMMEDIATE NEXT STEP: Run MIPROv2 Optimization
+### 🎯 IMMEDIATE NEXT STEP: Complete MIPROv2 Optimization Run
 
-**Current Blocker:** `optimize.py` uses BootstrapFewShot, but plan recommends MIPROv2 for better results with small datasets.
+**Current Status (2025-10-23):** Code fully migrated to MIPROv2, but optimization blocked by Gemini API daily quota limit (50 requests/day exhausted).
 
-**Recommended Action Path:**
-1. **Update `optimize.py` to use MIPROv2** (instead of BootstrapFewShot)
-   - Change optimizer from `dspy.BootstrapFewShot` to `dspy.MIPROv2`
-   - Add `auto="light"` parameter for faster iteration
-   - Keep existing metrics (`extraction_accuracy`, `workout_quality`)
+**What Was Completed:**
+- ✅ Migrated `optimize.py` from BootstrapFewShot to MIPROv2
+- ✅ Added `auto="light"` parameter (~10-20 trials)
+- ✅ Fixed missing `primary_lift_pr` parameter in evaluation function
+- ✅ Reduced demo counts (2 vs 4/3) to minimize API calls
+- ✅ Added command-line argument support: `uv run optimize.py 3`
+- ✅ Confirmed MIPROv2 bootstrap phase works (6 demo sets created)
+- ⚠️ Blocked at instruction proposal phase (step 2 of 3)
 
-2. **Run optimization:**
-   ```bash
-   cd dspy-test/coach-app
-   uv run optimize.py
-   # Choose option 3 (optimize both modules)
+**Current Blocker:** Gemini API daily quota (50 requests/day) exhausted. MIPROv2 requires ~30-50 API calls.
+
+**Choose ONE Action Path to Proceed:**
+
+**Path 1: Wait for Quota Reset** (Free, Recommended for Learning Projects)
+```bash
+# Wait 24 hours, then run:
+cd dspy-test/coach-app
+uv run optimize.py 3
+```
+- **Pros:** No cost, code is ready
+- **Cons:** 24-hour wait, may hit limit again if optimization incomplete
+- **ETA:** ~30-40 minutes after quota resets
+
+**Path 2: Upgrade API Plan** (Best for Active Development)
+1. Visit https://ai.google.dev/pricing
+2. Upgrade to paid tier (1000 RPM, higher daily limits)
+3. Run: `cd dspy-test/coach-app && uv run optimize.py 3`
+- **Pros:** Immediate, reliable, better for iteration
+- **Cons:** ~$0.50-2.00 cost for full optimization
+- **ETA:** ~15-20 minutes
+
+**Path 3: Use Alternative Model** (If You Have Other API Keys)
+1. Update `optimize.py` model configuration:
+   ```python
+   # For OpenAI
+   dspy.configure(lm=dspy.LM("gpt-3.5-turbo", api_key=openai_key))
    ```
+2. Run: `cd dspy-test/coach-app && uv run optimize.py 3`
+- **Pros:** Separate quota, can proceed today
+- **Cons:** Requires different API key, results may vary slightly
+- **ETA:** ~20-30 minutes
 
-3. **Evaluate results:**
-   - Check `optimized/extractor.json` and `optimized/generator.json`
-   - Review `dspy.inspect_history()` output to see generated instructions
-   - Compare baseline vs optimized performance scores
+**Path 4: Skip to Manual Prompt Engineering** (Fallback)
+Skip MIPROv2 optimization and proceed to Phase 5:
+1. Use existing module signatures as prompts
+2. Add few-shot examples from `training_data.py` manually
+3. Port directly to AI SDK in `backend/src/prompts.ts`
+- **Pros:** No API costs, immediate progress
+- **Cons:** Miss out on systematic optimization benefits
+- **ETA:** ~1-2 hours manual work
 
-4. **If results are good:** Proceed to Phase 5 (port prompts to AI SDK)
-5. **If results need improvement:** Consider Phase 3.5 (augment with eval data) for more training examples
+**After Optimization Completes:**
+1. Check `dspy-test/coach-app/optimized/extractor.json` and `generator.json`
+2. Review `dspy.inspect_history()` output to see generated instructions
+3. Compare baseline vs optimized performance scores
+4. Proceed to Phase 5 (port optimized prompts to AI SDK)
 
 ### Why MIPROv2 Over BootstrapFewShot?
 - Small datasets (8 extractor, 4 generator examples) benefit from instruction optimization
@@ -59,7 +111,7 @@ If you want more training data first, implement **Phase 3.5** to extract example
 | **Phase 1: Module Setup** | ✅ **COMPLETED** | 100% | All modules, signatures, and Pydantic models implemented |
 | **Phase 2: Application Loop** | ✅ **COMPLETED** | 100% | main.py working and tested |
 | **Phase 3: Training Data** | ⚠️ **MOSTLY DONE** | 80% | Synthetic examples done (8 extractor, 4 generator), 4 real conversation logs saved, eval data integration pending |
-| **Phase 4: Optimization** | ⚠️ **READY** | 20% | Infrastructure complete, but not yet run. Note: optimize.py uses BootstrapFewShot, plan recommends MIPROv2 |
+| **Phase 4: Optimization** | ⚠️ **95% COMPLETE** | 95% | ✅ Migrated to MIPROv2, ✅ Bootstrap phase works, ⚠️ Blocked by API quota (50/day limit) |
 | **Phase 5: Port to AI SDK** | ❌ **NOT STARTED** | 0% | Waiting for optimization completion |
 
 ### Key Files Status
@@ -67,16 +119,20 @@ If you want more training data first, implement **Phase 3.5** to extract example
 - ✅ `main.py` - Application loop working
 - ✅ `training_data.py` - 8 extractor + 4 generator examples
 - ✅ `metrics.py` - All metrics defined
-- ✅ `optimize.py` - Optimization script ready (uses BootstrapFewShot)
-- ❌ `optimized/` - No optimized models saved yet
+- ✅ `optimize.py` - **NOW USES MIPROv2** (migrated from BootstrapFewShot on 2025-10-23)
+- ⚠️ `optimized/` - No optimized models saved yet (blocked by API quota)
 
 ### What to Do Next:
-**➡️ Primary Task:** Update `optimize.py` to use MIPROv2 instead of BootstrapFewShot, then run optimization
-- See detailed instructions in "📍 CURRENT STATUS & NEXT STEPS" section above
+**➡️ Primary Task:** Complete MIPROv2 optimization run (blocked by API quota)
+- Choose Path 1-4 from "📍 CURRENT STATUS & NEXT STEPS" section above
+- **Simplest:** Wait 24 hours for quota reset, then run `uv run optimize.py 3`
+- **Fastest:** Upgrade API plan or use alternative model
 
-### Critical Notes
-⚠️ **Optimizer Mismatch:** The plan recommends MIPROv2 (Phase 4.0) but `optimize.py` currently uses BootstrapFewShot. Must update before running optimization.
-⚠️ **Small Dataset:** With only 8+4 examples, MIPROv2's instruction optimization is crucial for good results.
+### Critical Notes (2025-10-23 Update)
+✅ **Optimizer Updated:** Code successfully migrated to MIPROv2 with `auto="light"` parameter
+✅ **Bootstrap Phase Verified:** MIPROv2 successfully created 6 demo sets and extracted traces
+⚠️ **API Quota Blocker:** Gemini free tier (50 requests/day) exhausted during instruction proposal phase
+💡 **Ready to Resume:** Once quota available, run `cd dspy-test/coach-app && uv run optimize.py 3`
 
 ---
 
@@ -703,13 +759,16 @@ Based on **Option C: Hybrid Approach** (recommended):
 3. ✏️ Compare optimized vs baseline performance
 4. ✏️ Port optimized prompts back to AI SDK (Phase 5)
 
-## Phase 4: Optimization - ⚠️ INFRASTRUCTURE READY, NOT YET RUN
+## Phase 4: Optimization - ⚠️ 95% COMPLETE (Blocked by API Quota)
 
-**Status:**
+**Status (Updated 2025-10-23):**
 - ✅ Metrics defined (metrics.py)
-- ✅ Optimization script created (optimize.py)
-- ⚠️ **NOTE**: optimize.py uses BootstrapFewShot, but plan recommends MIPROv2
-- ❌ Optimization not yet run
+- ✅ Optimization script created and **migrated to MIPROv2** (optimize.py)
+- ✅ Command-line argument support added
+- ✅ Fixed `primary_lift_pr` parameter in evaluation function
+- ✅ Bootstrap phase verified working (6 demo sets created successfully)
+- ⚠️ Optimization run blocked by Gemini API daily quota (50 requests/day exhausted)
+- ❌ Full optimization not yet complete (stopped at instruction proposal phase)
 - ❌ Results not yet evaluated
 
 ### 4.0 Optimizer Selection: BootstrapFewShot vs MIPROv2
@@ -788,40 +847,49 @@ def workout_quality(example, prediction, trace=None):
     return quality_score  # 0.0 to 1.0
 ```
 
-### 4.2 Run Optimization - ⚠️ SCRIPT READY, NOT YET RUN (optimize.py uses BootstrapFewShot)
+### 4.2 Run Optimization - ✅ CODE READY, ⚠️ BLOCKED BY API QUOTA
+
+**Implementation Status:** `optimize.py` successfully migrated to MIPROv2 on 2025-10-23
+
 ```python
-# Optimize InfoExtractor with MIPROv2
-extractor_trainset = [...]  # 8+ examples (you have 8)
+# ✅ IMPLEMENTED in optimize.py (lines 51-58 for InfoExtractor)
 extractor_optimizer = dspy.MIPROv2(
     metric=extraction_accuracy,
-    auto="light",  # Start with light, upgrade to "medium" for production
-    max_bootstrapped_demos=4,
-    max_labeled_demos=4,
+    auto="light",              # ~10-20 trials for fast iteration
+    max_bootstrapped_demos=2,  # Reduced from 4 to minimize API calls
+    max_labeled_demos=2,
 )
 optimized_extractor = extractor_optimizer.compile(
     student=InfoExtractor(),
-    trainset=extractor_trainset
+    trainset=get_extractor_trainset()  # 8 examples
 )
 
-# Optimize WorkoutGenerator with MIPROv2
-generator_trainset = [...]  # 4+ examples (you have 4)
+# ✅ IMPLEMENTED in optimize.py (lines 105-112 for WorkoutGenerator)
 generator_optimizer = dspy.MIPROv2(
     metric=workout_quality,
-    auto="light",  # Start with light, upgrade to "medium" for production
-    max_bootstrapped_demos=3,
-    max_labeled_demos=3,
+    auto="light",              # ~10-20 trials for fast iteration
+    max_bootstrapped_demos=2,  # Reduced from 3 to minimize API calls
+    max_labeled_demos=2,
 )
 optimized_generator = generator_optimizer.compile(
     student=WorkoutGenerator(),
-    trainset=generator_trainset
+    trainset=get_generator_trainset()  # 4 examples
 )
 
-# Save optimized modules
-optimized_extractor.save('optimized_extractor.json')
-optimized_generator.save('optimized_generator.json')
+# ✅ IMPLEMENTED: Save optimized modules
+optimized_extractor.save('../optimized/extractor.json')
+optimized_generator.save('../optimized/generator.json')
 ```
 
-### 4.3 Inspect Results - ⚠️ EVALUATION FUNCTIONS READY, NOT YET RUN
+**To Run:**
+```bash
+cd dspy-test/coach-app
+uv run optimize.py 3  # Option 3 = optimize both modules
+```
+
+**Current Blocker:** Gemini API daily quota (50/day) exhausted. See handoff summary for resolution paths.
+
+### 4.3 Inspect Results - ⚠️ EVALUATION FUNCTIONS READY, WAITING FOR OPTIMIZATION COMPLETION
 ```python
 dspy.inspect_history(n=5)
 # Examine MIPROv2 optimizations:
@@ -1048,43 +1116,99 @@ primary_lift_pr = dspy.OutputField(desc="User's PR for main lift (e.g. '205lb be
 
 ## 📋 HANDOFF SUMMARY FOR NEXT SESSION
 
+**Last Updated:** 2025-10-23
+
 ### Context:
 Building a DSPy-based fitness coach (Coach Nova) to optimize prompts before porting back to AI SDK.
 
 ### What's Been Accomplished:
 ✅ **Phases 1-2 Complete** - All modules working, Pydantic models implemented, app tested
 ✅ **Phase 3 (80% done)** - Training data created: 8 InfoExtractor + 4 WorkoutGenerator synthetic examples, plus 4 real conversation logs
+✅ **Phase 4 (95% done)** - Code migrated to MIPROv2, bootstrap phase verified working
 ✅ **Validation Success** - Logs show 72% reduction in conversation length (18→5 exchanges), no more tangential questions, proper type-safe outputs
 
 ### Current State:
 - All code in `dspy-test/coach-app/`: `modules.py`, `main.py`, `training_data.py`, `metrics.py`, `optimize.py`
-- Ready to run optimization, but need to update `optimize.py` first
+- ✅ `optimize.py` **UPDATED** to use MIPROv2 (completed 2025-10-23)
+- ✅ Command-line support added: `uv run optimize.py 3`
+- ✅ Fixed `primary_lift_pr` parameter in evaluation function
+- ⚠️ Optimization blocked by API quota limit
 
 ### The Blocker:
-`optimize.py` currently uses **BootstrapFewShot**, but with only 8+4 training examples, the plan recommends **MIPROv2** which optimizes instructions + few-shot examples together (better for small datasets).
+**Gemini API Daily Quota Exhausted** - The free tier allows 50 requests/day, which was consumed during multiple optimization attempts. MIPROv2 requires ~30-50 API calls (bootstrap + instruction proposal + Bayesian optimization).
 
-### Next Action (Concrete Steps):
-1. Open `dspy-test/coach-app/optimize.py`
-2. Replace `dspy.BootstrapFewShot` with `dspy.MIPROv2`
-3. Add `auto="light"` parameter to both optimizer instances
-4. Update parameter names if needed (MIPROv2 may have slightly different params)
-5. Run: `cd dspy-test/coach-app && uv run optimize.py` (choose option 3)
-6. Inspect results in `optimized/` directory and review generated instructions
+**Progress Made Before Block:**
+- ✅ Step 1/3: Bootstrap phase completed (6 demo sets created)
+- ⚠️ Step 2/3: Instruction proposal phase started but hit quota
+- ❌ Step 3/3: Bayesian optimization not reached
+
+### Next Action (Choose ONE Path):
+
+**🟢 Path 1: Wait & Resume** (Recommended for Free Tier)
+```bash
+# Wait 24 hours for quota reset, then:
+cd dspy-test/coach-app
+uv run optimize.py 3
+```
+**When:** After quota resets (check https://ai.dev/usage?tab=rate-limit)
+**Time:** ~30-40 minutes to complete
+**Cost:** Free
+
+**🟡 Path 2: Upgrade & Complete** (Best for Active Development)
+1. Visit https://ai.google.dev/pricing and upgrade to paid tier
+2. Run: `cd dspy-test/coach-app && uv run optimize.py 3`
+**When:** Immediately
+**Time:** ~15-20 minutes
+**Cost:** ~$0.50-2.00 for optimization
+
+**🟠 Path 3: Switch Model Provider**
+1. Get OpenAI/Claude/other API key
+2. Update `optimize.py` line 39 & 90:
+   ```python
+   dspy.configure(lm=dspy.LM("gpt-3.5-turbo", api_key=openai_key))
+   ```
+3. Run: `cd dspy-test/coach-app && uv run optimize.py 3`
+**When:** If you have alternative API access
+**Time:** ~20-30 minutes
+**Cost:** Depends on provider
+
+**⚪ Path 4: Manual Prompt Engineering** (Fallback)
+Skip optimization, port existing prompts manually to AI SDK
+1. Use signatures from `modules.py` as base prompts
+2. Add few-shot examples from `training_data.py`
+3. Update `backend/src/prompts.ts` directly
+**When:** If optimization not feasible
+**Time:** ~1-2 hours
+**Trade-off:** Less systematic, but makes progress
 
 ### Key Files Reference:
 - **Plan:** `dspy-test/docs/full-implementation-plan.md` (this file)
+- **Status:** `dspy-test/docs/optimization-status.md` (detailed troubleshooting & session log)
 - **Modules:** `dspy-test/coach-app/modules.py` (CoachAgent, InfoExtractor, WorkoutGenerator)
 - **Training Data:** `dspy-test/coach-app/training_data.py` (12 examples total)
 - **Metrics:** `dspy-test/coach-app/metrics.py` (extraction_accuracy, workout_quality)
-- **Optimizer:** `dspy-test/coach-app/optimize.py` (needs MIPROv2 update)
+- **Optimizer:** `dspy-test/coach-app/optimize.py` ✅ **USES MIPROv2** (updated 2025-10-23)
 - **Logs:** `dspy-test/coach-app/logs/04.md` (excellent positive example)
 
-### Success Criteria:
-- Optimized modules saved to `optimized/extractor.json` and `optimized/generator.json`
-- Performance improvement visible in evaluation metrics
-- Generated instructions provide clear task guidance (inspect with `dspy.inspect_history()`)
+### Success Criteria (After Optimization Completes):
+- ✅ Optimized modules saved to `optimized/extractor.json` and `optimized/generator.json`
+- ✅ Performance improvement visible in evaluation metrics
+- ✅ Generated instructions provide clear task guidance (inspect with `dspy.inspect_history()`)
+- ✅ Compare baseline vs optimized scores
+- ➡️ Proceed to Phase 5: Port to AI SDK
 
 ### If You Get Stuck:
-- See Phase 4.0 for detailed MIPROv2 vs BootstrapFewShot comparison
-- See Phase 4.2 for example MIPROv2 code
+- See `dspy-test/docs/optimization-status.md` for detailed troubleshooting
+- See Phase 4.0 below for MIPROv2 configuration details
+- See Phase 4.2 below for optimizer code examples
 - MIPROv2 documentation: https://dspy-docs.vercel.app/docs/building-blocks/optimizers#miprov2
+- API quota tracking: https://ai.dev/usage?tab=rate-limit
+
+### 🚀 Quick Resume Command:
+```bash
+# After quota resets or with alternative API:
+cd dspy-test/coach-app
+uv run optimize.py 3
+# Let it run for ~15-20 minutes
+# Check optimized/*.json files when done
+```

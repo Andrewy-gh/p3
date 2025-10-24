@@ -1,14 +1,21 @@
 """
 Optimization Script for Coach Nova Modules
 
-This script uses DSPy's BootstrapFewShot optimizer to improve:
+This script uses DSPy's MIPROv2 optimizer to improve:
 - InfoExtractor: Better extraction of structured requirements
 - WorkoutGenerator: Better quality workout plans
+
+MIPROv2 is chosen over BootstrapFewShot because it:
+- Optimizes both instructions AND few-shot examples jointly
+- Better for small datasets (8 extractor, 4 generator examples)
+- Uses Bayesian Optimization for better prompt search
+- Generates task-specific instructions that encode domain rules
 
 The optimized modules are saved to the optimized/ directory.
 """
 
 import os
+import sys
 import dspy
 from modules import InfoExtractor, WorkoutGenerator
 from training_data import get_extractor_trainset, get_generator_trainset
@@ -17,7 +24,7 @@ from metrics import extraction_accuracy, workout_quality
 
 def optimize_info_extractor(api_key):
     """
-    Optimize the InfoExtractor module using BootstrapFewShot.
+    Optimize the InfoExtractor module using MIPROv2.
 
     Args:
         api_key: Google Generative AI API key
@@ -37,11 +44,15 @@ def optimize_info_extractor(api_key):
     print(f"\nTraining set size: {len(trainset)} examples")
 
     # Create optimizer
-    print("\nInitializing BootstrapFewShot optimizer...")
-    optimizer = dspy.BootstrapFewShot(
+    print("\nInitializing MIPROv2 optimizer...")
+    print("  - auto='light': ~10-20 trials for fast iteration")
+    print("  - Optimizes instructions + few-shot examples jointly")
+    print("  - Reduced demo counts (2 vs 4/3) to minimize API calls")
+    optimizer = dspy.MIPROv2(
         metric=extraction_accuracy,
-        max_bootstrapped_demos=4,  # How many few-shot examples to include
-        max_labeled_demos=4,       # How many labeled examples to use
+        auto="light",              # Light mode: ~10-20 trials, auto-configures minibatch settings
+        max_bootstrapped_demos=2,  # Reduced from 4 to minimize API calls
+        max_labeled_demos=2,       # Reduced from 4 to minimize API calls
     )
 
     # Compile (optimize) the module
@@ -65,7 +76,7 @@ def optimize_info_extractor(api_key):
 
 def optimize_workout_generator(api_key):
     """
-    Optimize the WorkoutGenerator module using BootstrapFewShot.
+    Optimize the WorkoutGenerator module using MIPROv2.
 
     Args:
         api_key: Google Generative AI API key
@@ -85,11 +96,15 @@ def optimize_workout_generator(api_key):
     print(f"\nTraining set size: {len(trainset)} examples")
 
     # Create optimizer
-    print("\nInitializing BootstrapFewShot optimizer...")
-    optimizer = dspy.BootstrapFewShot(
+    print("\nInitializing MIPROv2 optimizer...")
+    print("  - auto='light': ~10-20 trials for fast iteration")
+    print("  - Optimizes instructions + few-shot examples jointly")
+    print("  - Reduced demo counts (2 vs 4/3) to minimize API calls")
+    optimizer = dspy.MIPROv2(
         metric=workout_quality,
-        max_bootstrapped_demos=3,  # How many few-shot examples to include
-        max_labeled_demos=3,       # How many labeled examples to use
+        auto="light",              # Light mode: ~10-20 trials, auto-configures minibatch settings
+        max_bootstrapped_demos=2,  # Reduced from 3 to minimize API calls
+        max_labeled_demos=2,       # Reduced from 3 to minimize API calls
     )
 
     # Compile (optimize) the module
@@ -145,7 +160,8 @@ def evaluate_improvements(original_module, optimized_module, trainset, metric, m
                 equipment=example.equipment,
                 duration=example.duration,
                 space=example.space,
-                injuries=example.injuries
+                injuries=example.injuries,
+                primary_lift_pr=example.primary_lift_pr
             )
 
         orig_score = metric(example, orig_pred)
@@ -162,7 +178,8 @@ def evaluate_improvements(original_module, optimized_module, trainset, metric, m
                 equipment=example.equipment,
                 duration=example.duration,
                 space=example.space,
-                injuries=example.injuries
+                injuries=example.injuries,
+                primary_lift_pr=example.primary_lift_pr
             )
 
         opt_score = metric(example, opt_pred)
@@ -197,14 +214,17 @@ def main():
         print("\nError: GOOGLE_GENERATIVE_AI_API_KEY environment variable not set")
         return
 
-    # Ask user what to optimize
-    print("\nWhat would you like to optimize?")
-    print("1. InfoExtractor only")
-    print("2. WorkoutGenerator only")
-    print("3. Both modules")
-    print("4. Evaluate existing optimized modules")
-
-    choice = input("\nEnter choice (1-4): ").strip()
+    # Check for command-line argument
+    if len(sys.argv) > 1:
+        choice = sys.argv[1]
+    else:
+        # Ask user what to optimize
+        print("\nWhat would you like to optimize?")
+        print("1. InfoExtractor only")
+        print("2. WorkoutGenerator only")
+        print("3. Both modules")
+        print("4. Evaluate existing optimized modules")
+        choice = input("\nEnter choice (1-4): ").strip()
 
     if choice == "1":
         optimized_extractor = optimize_info_extractor(api_key)
