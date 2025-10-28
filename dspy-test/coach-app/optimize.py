@@ -16,10 +16,45 @@ The optimized modules are saved to the optimized/ directory.
 
 import os
 import sys
+import time
 import dspy
 from modules import InfoExtractor, WorkoutGenerator
 from training_data import get_extractor_trainset, get_generator_trainset
 from metrics import extraction_accuracy, workout_quality
+
+
+class RateLimitedLM(dspy.LM):
+    """
+    Wrapper around dspy.LM that enforces rate limiting.
+
+    Gemini free tier limits:
+    - 10 requests per minute
+    - 50 requests per day
+
+    This wrapper adds a delay between calls to stay under the per-minute limit.
+    """
+    def __init__(self, *args, requests_per_min=9, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.requests_per_min = requests_per_min
+        self.min_delay = 60.0 / requests_per_min  # seconds between requests
+        self.last_request_time = 0
+
+    def __call__(self, *args, **kwargs):
+        # Calculate time since last request
+        now = time.time()
+        time_since_last = now - self.last_request_time
+
+        # If we're calling too fast, wait
+        if time_since_last < self.min_delay:
+            wait_time = self.min_delay - time_since_last
+            print(f"  [Rate limit] Waiting {wait_time:.1f}s before next request...")
+            time.sleep(wait_time)
+
+        # Update timestamp
+        self.last_request_time = time.time()
+
+        # Make the actual call
+        return super().__call__(*args, **kwargs)
 
 
 def optimize_info_extractor(api_key):
@@ -36,8 +71,16 @@ def optimize_info_extractor(api_key):
     print("OPTIMIZING INFO EXTRACTOR")
     print("=" * 60)
 
-    # Configure DSPy
-    dspy.configure(lm=dspy.LM("gemini/gemini-2.0-flash-exp", api_key=api_key))
+    # Configure DSPy with rate limiting to respect Gemini free tier limits
+    # Free tier: 10 requests/minute, so we set to 9 req/min with safety margin
+    print("\n⚠️  Rate limiting enabled: 9 requests/minute (Gemini free tier: 10/min)")
+    print("    This will add delays between API calls to avoid quota errors.")
+    lm = RateLimitedLM(
+        "gemini/gemini-2.0-flash-exp",
+        api_key=api_key,
+        requests_per_min=9  # Just under the 10/min limit
+    )
+    dspy.configure(lm=lm)
 
     # Get training data
     trainset = get_extractor_trainset()
@@ -88,8 +131,16 @@ def optimize_workout_generator(api_key):
     print("OPTIMIZING WORKOUT GENERATOR")
     print("=" * 60)
 
-    # Configure DSPy
-    dspy.configure(lm=dspy.LM("gemini/gemini-2.0-flash-exp", api_key=api_key))
+    # Configure DSPy with rate limiting to respect Gemini free tier limits
+    # Free tier: 10 requests/minute, so we set to 9 req/min with safety margin
+    print("\n⚠️  Rate limiting enabled: 9 requests/minute (Gemini free tier: 10/min)")
+    print("    This will add delays between API calls to avoid quota errors.")
+    lm = RateLimitedLM(
+        "gemini/gemini-2.0-flash-exp",
+        api_key=api_key,
+        requests_per_min=9  # Just under the 10/min limit
+    )
+    dspy.configure(lm=lm)
 
     # Get training data
     trainset = get_generator_trainset()
@@ -288,8 +339,13 @@ def main():
             optimized_generator = WorkoutGenerator()
             optimized_generator.load("../optimized/generator.json")
 
-            # Configure DSPy
-            dspy.configure(lm=dspy.LM("gemini/gemini-2.0-flash-exp", api_key=api_key))
+            # Configure DSPy with rate limiting
+            lm = RateLimitedLM(
+                "gemini/gemini-2.0-flash-exp",
+                api_key=api_key,
+                requests_per_min=9
+            )
+            dspy.configure(lm=lm)
 
             evaluate_improvements(
                 InfoExtractor(),

@@ -1,0 +1,87 @@
+{
+  "extract.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "conversation_history": "[{'user': \"I'm a beginner and want to workout at home with no equipment\", 'coach': 'Perfect! How much time do you have?'}, {'user': 'About 30 minutes', 'coach': \"What's your main goal - general fitness, endurance, or building strength?\"}, {'user': 'General fitness', 'coach': 'Great! Any injuries or areas to avoid?'}, {'user': 'No injuries', 'coach': 'Perfect, let me create your workout!'}]",
+        "reasoning": "The user is a beginner, wants to work out at home with no equipment for 30 minutes, and their goal is general fitness. They have no injuries.",
+        "fitness_level": "beginner",
+        "goal": "general",
+        "focus": "full_body",
+        "equipment": "bodyweight",
+        "duration": "30",
+        "space": "home",
+        "injuries": "none",
+        "primary_lift_pr": "null"
+      },
+      {
+        "augmented": true,
+        "conversation_history": "[{'user': 'I want to build muscle with dumbbells, 45 minutes', 'coach': 'Great goal! Are you a beginner, intermediate, or advanced?'}]",
+        "reasoning": "The user wants to build muscle using dumbbells and has 45 minutes. The fitness level is not yet specified.",
+        "fitness_level": "null",
+        "goal": "hypertrophy",
+        "focus": "full_body",
+        "equipment": "dumbbells",
+        "duration": "45",
+        "space": "null",
+        "injuries": "null",
+        "primary_lift_pr": "null"
+      }
+    ],
+    "signature": {
+      "instructions": "Analyze the conversation history to precisely extract the user's workout requirements. Reason step-by-step, then identify the user's fitness level (beginner, intermediate, or advanced), primary goal (strength, hypertrophy, endurance, power, or general), focus area (push, pull, legs, chest, back, arms, shoulders, or full_body), available equipment (bodyweight, dumbbells, barbell, machines, cables, bands), desired workout duration (in minutes), preferred workout space (home, gym, hotel, outdoor), any injuries or limitations, and their personal record for a relevant primary lift. If any information is not explicitly stated, mark it as \"null\".",
+      "fields": [
+        {
+          "prefix": "Conversation History:",
+          "description": "Complete chat history"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Fitness Level:",
+          "description": "beginner|intermediate|advanced or null"
+        },
+        {
+          "prefix": "Goal:",
+          "description": "strength|hypertrophy|endurance|power|general or null"
+        },
+        {
+          "prefix": "Focus:",
+          "description": "push|pull|legs|chest|back|arms|shoulders|full_body or null"
+        },
+        {
+          "prefix": "Equipment:",
+          "description": "bodyweight|dumbbells|barbell|machines|cables|bands or null"
+        },
+        {
+          "prefix": "Duration:",
+          "description": "session minutes as number or null"
+        },
+        {
+          "prefix": "Space:",
+          "description": "home|gym|hotel|outdoor or null"
+        },
+        {
+          "prefix": "Injuries:",
+          "description": "any limitations/pain or null"
+        },
+        {
+          "prefix": "Primary Lift Pr:",
+          "description": "User's PR for main lift (e.g. '205lb bench') or null. Use to calibrate weights."
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.13",
+      "dspy": "3.0.3",
+      "cloudpickle": "3.1"
+    }
+  }
+}
