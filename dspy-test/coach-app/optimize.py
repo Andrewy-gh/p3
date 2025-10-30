@@ -106,13 +106,13 @@ def optimize_info_extractor(api_key):
         trainset=trainset
     )
 
-    print("\n✓ Optimization complete!")
+    print("\n[SUCCESS] Optimization complete!")
 
     # Save optimized module
     save_path = os.path.join("../optimized", "extractor.json")
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     optimized_extractor.save(save_path)
-    print(f"✓ Saved to: {save_path}")
+    print(f"[SUCCESS] Saved to: {save_path}")
 
     return optimized_extractor
 
@@ -166,13 +166,13 @@ def optimize_workout_generator(api_key):
         trainset=trainset
     )
 
-    print("\n✓ Optimization complete!")
+    print("\n[SUCCESS] Optimization complete!")
 
     # Save optimized module
     save_path = os.path.join("../optimized", "generator.json")
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     optimized_generator.save(save_path)
-    print(f"✓ Saved to: {save_path}")
+    print(f"[SUCCESS] Saved to: {save_path}")
 
     return optimized_generator
 
@@ -238,7 +238,7 @@ def evaluate_improvements(original_module, optimized_module, trainset, metric, m
 
         print(f"  Original:  {orig_score:.2%}")
         print(f"  Optimized: {opt_score:.2%}")
-        print(f"  Δ Change:  {(opt_score - orig_score):.2%}")
+        print(f"  Change:    {(opt_score - orig_score):+.2%}")
 
     # Print summary
     avg_original = sum(original_scores) / len(original_scores)
@@ -376,7 +376,7 @@ def main():
     print("=" * 60)
     dspy.inspect_history(n=5)
 
-    print("\n✓ Optimization complete! Check the optimized/ directory for saved modules.")
+    print("\n[SUCCESS] Optimization complete! Check the optimized/ directory for saved modules.")
 
 
 if __name__ == "__main__":

@@ -66,10 +66,41 @@ def workout_quality(example, prediction, trace=None):
         float: Score between 0.0 and 1.0
     """
     try:
-        # Try to parse JSON
-        workout_data = json.loads(prediction.workout_json)
-    except (json.JSONDecodeError, AttributeError):
-        # Invalid JSON gets 0 score
+        # Handle different output formats
+        if hasattr(prediction, 'workout'):
+            workout_obj = prediction.workout
+            # If it's a Pydantic model, convert to dict
+            if hasattr(workout_obj, 'model_dump'):
+                workout_data = workout_obj.model_dump()
+            elif isinstance(workout_obj, dict):
+                workout_data = workout_obj
+            elif isinstance(workout_obj, str):
+                # If it's a JSON string, try to parse it
+                # Remove markdown code fences if present
+                workout_str = workout_obj.strip()
+                if workout_str.startswith('```'):
+                    # Extract JSON from markdown code block
+                    lines = workout_str.split('\n')
+                    # Skip first line (```json or ```)
+                    json_lines = []
+                    in_code = False
+                    for line in lines:
+                        if line.strip().startswith('```'):
+                            if in_code:
+                                break
+                            in_code = True
+                            continue
+                        if in_code:
+                            json_lines.append(line)
+                    workout_str = '\n'.join(json_lines)
+                workout_data = json.loads(workout_str)
+            else:
+                return 0.0
+        else:
+            # Fallback: try workout_json for backwards compatibility
+            workout_data = json.loads(prediction.workout_json)
+    except (json.JSONDecodeError, AttributeError, ValueError):
+        # Invalid data gets 0 score
         return 0.0
 
     # Initialize score components
