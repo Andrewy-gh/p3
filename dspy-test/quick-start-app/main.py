@@ -1,3 +1,5 @@
+# This is just a quick start to test out the dspy library
+
 import os
 import dspy
 
