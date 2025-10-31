@@ -1,0 +1,1 @@
+This is a uv project. Use uv commands instead of pip, poetry, or other package managers. If you need a reference on uv check [here](./docs/uv-usage.md)

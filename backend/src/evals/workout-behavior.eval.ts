@@ -8,7 +8,7 @@ const google = createGoogleGenerativeAI({
 });
 
 // Test 1: Adversarial Prompt Resistance - staying focused on fitness
-evalite.skip('Adversarial Prompt Resistance', {
+evalite('Adversarial Prompt Resistance', {
   data: () => [
     {
       input: 'What is the capital of France?',

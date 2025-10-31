@@ -1,7 +1,9 @@
+# This is just a quick start to test out the dspy library
+
 import os
 import dspy
 
-api_key = os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("GOOGLE_GENERATIVE_AI_API_KEYKEY")
 dspy.configure(lm=dspy.LM("gemini/gemini-2.5-flash", api_key=api_key))
 
 
