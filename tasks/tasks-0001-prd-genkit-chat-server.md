@@ -23,19 +23,19 @@ Generated from: `0001-prd-genkit-chat-server.md`
 
 ## Tasks
 
-- [ ] 1.0 Set up Go project structure and Genkit dependencies
+- [x] 1.0 Set up Go project structure and Genkit dependencies
   - [x] 1.1 Create genkit-server directory and initialize Go module with `go mod init`
   - [x] 1.2 Install Genkit Go SDK dependencies: `github.com/firebase/genkit/go/genkit`, `github.com/firebase/genkit/go/ai`, `github.com/firebase/genkit/go/plugins/googlegenai`
   - [x] 1.3 Create `.env.local` file with `GOOGLE_GENERATIVE_AI_API_KEY` (use same key as backend)
   - [x] 1.4 Set up basic server structure in `main.go` with Genkit initialization and HTTP server on port 3400
 
-- [ ] 2.0 Implement the generateWorkout tool with proper schema and validation
-  - [ ] 2.1 Define Go structs for workout tool input schema matching the PRD requirements (fitnessLevel, fitnessGoal, equipment, sessionDuration, workoutFocus, spaceConstraints, injuries)
-  - [ ] 2.2 Define Go structs for workout output schema (WorkoutOutput with exercises, notes, workoutFocus)
-  - [ ] 2.3 Implement the generateWorkout tool using `genkit.DefineTool` with proper JSON schema tags
-  - [ ] 2.4 Add input validation logic (check for required fields, reasonable values)
-  - [ ] 2.5 Implement workout generation logic using AI model (similar to the approach in `backend/src/tools.ts` lines 72-106)
-  - [ ] 2.6 Port the WORKOUT_GENERATION_PROMPT from `backend/src/prompts.ts` to Go
+- [x] 2.0 Implement the generateWorkout tool with proper schema and validation
+  - [x] 2.1 Define Go structs for workout tool input schema matching the PRD requirements (fitnessLevel, fitnessGoal, equipment, sessionDuration, workoutFocus, spaceConstraints, injuries)
+  - [x] 2.2 Define Go structs for workout output schema (WorkoutOutput with exercises, notes, workoutFocus)
+  - [x] 2.3 Implement the generateWorkout tool using `genkit.DefineTool` with proper JSON schema tags
+  - [x] 2.4 Add input validation logic (check for required fields, reasonable values)
+  - [x] 2.5 Implement workout generation logic using AI model (similar to the approach in `backend/src/tools.ts` lines 72-106)
+  - [x] 2.6 Port the WORKOUT_GENERATION_PROMPT from `backend/src/prompts.ts` to Go
 
 - [ ] 3.0 Implement the chat flow with conversation history and system prompt
   - [ ] 3.1 Define ChatInput struct with message string and conversationHistory array (matching request schema from PRD)
