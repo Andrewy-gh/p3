@@ -37,37 +37,37 @@ Generated from: `0001-prd-genkit-chat-server.md`
   - [x] 2.5 Implement workout generation logic using AI model (similar to the approach in `backend/src/tools.ts` lines 72-106)
   - [x] 2.6 Port the WORKOUT_GENERATION_PROMPT from `backend/src/prompts.ts` to Go
 
-- [ ] 3.0 Implement the chat flow with conversation history and system prompt
-  - [ ] 3.1 Define ChatInput struct with message string and conversationHistory array (matching request schema from PRD)
-  - [ ] 3.2 Define ChatResponse struct with text, hasToolOutput, and toolName fields (matching response schema from PRD)
-  - [ ] 3.3 Define Message struct for conversation history with role and content fields
-  - [ ] 3.4 Port the CHAT_AGENT_PROMPT from `backend/src/prompts.ts` (lines 3-80) to Go as a string constant
-  - [ ] 3.5 Implement the chatFlow using `genkit.DefineFlow` with ChatInput and ChatResponse types
-  - [ ] 3.6 Add conversation history parsing logic to build the full prompt with history
-  - [ ] 3.7 Configure the flow to use Gemini 2.0 Flash model (`googleai/gemini-2.0-flash`)
-  - [ ] 3.8 Register the generateWorkout tool with the chat flow using `ai.WithTools()`
-  - [ ] 3.9 Add logic to detect tool usage in the response and populate hasToolOutput/toolName fields
+- [x] 3.0 Implement the chat flow with conversation history and system prompt
+  - [x] 3.1 Define ChatInput struct with message string and conversationHistory array (matching request schema from PRD)
+  - [x] 3.2 Define ChatResponse struct with text, hasToolOutput, and toolName fields (matching response schema from PRD)
+  - [x] 3.3 Define Message struct for conversation history with role and content fields
+  - [x] 3.4 Port the CHAT_AGENT_PROMPT from `backend/src/prompts.ts` (lines 3-80) to Go as a string constant
+  - [x] 3.5 Implement the chatFlow using `genkit.DefineFlow` with ChatInput and ChatResponse types
+  - [x] 3.6 Add conversation history parsing logic to build the full prompt with history
+  - [x] 3.7 Configure the flow to use Gemini 2.0 Flash model (`googleai/gemini-2.0-flash`)
+  - [x] 3.8 Register the generateWorkout tool with the chat flow using `ai.WithTools()`
+  - [x] 3.9 Add logic to detect tool usage in the response and populate hasToolOutput/toolName fields
 
-- [ ] 4.0 Implement rate limiting (10 requests per minute per client)
-  - [ ] 4.1 Research rate limiting approaches for Genkit Go (check if Genkit has built-in support or if custom middleware is needed)
-  - [ ] 4.2 Implement client identification logic to extract IP from headers (x-forwarded-for, x-real-ip, or connection IP as fallback)
-  - [ ] 4.3 Create a rate limiter data structure to track request timestamps per client (using a map or third-party library like `golang.org/x/time/rate`)
-  - [ ] 4.4 Implement rate limiting logic with 60-second sliding window and 10 request limit
-  - [ ] 4.5 Wrap the chatFlow HTTP handler with rate limiting middleware
-  - [ ] 4.6 Return HTTP 429 (Too Many Requests) status with appropriate error message when limit is exceeded
+- [x] 4.0 Implement rate limiting (10 requests per minute per client)
+  - [x] 4.1 Research rate limiting approaches for Genkit Go (check if Genkit has built-in support or if custom middleware is needed)
+  - [x] 4.2 Implement client identification logic to extract IP from headers (x-forwarded-for, x-real-ip, or connection IP as fallback)
+  - [x] 4.3 Create a rate limiter data structure to track request timestamps per client (using a map or third-party library like `golang.org/x/time/rate`)
+  - [x] 4.4 Implement rate limiting logic with 60-second sliding window and 10 request limit
+  - [x] 4.5 Wrap the chatFlow HTTP handler with rate limiting middleware
+  - [x] 4.6 Return HTTP 429 (Too Many Requests) status with appropriate error message when limit is exceeded
 
-- [ ] 5.0 Implement step/iteration limiting (max 10 tool-calling iterations)
-  - [ ] 5.1 Research Genkit Go's documentation to find if there's a built-in `maxTurns` or similar parameter in `genkit.Generate()`
-  - [ ] 5.2 If no built-in support: implement manual iteration counting using `ai.WithReturnToolRequests(true)` to handle tool calls explicitly
-  - [ ] 5.3 Add a loop counter in the flow logic to track the number of tool-calling iterations
-  - [ ] 5.4 Break the tool-calling loop after 10 iterations and return the current AI response
-  - [ ] 5.5 Add logging to track when step limit is reached for debugging purposes
+- [x] 5.0 Implement step/iteration limiting (max 10 tool-calling iterations)
+  - [x] 5.1 Research Genkit Go's documentation to find if there's a built-in `maxTurns` or similar parameter in `genkit.Generate()`
+  - [x] 5.2 If no built-in support: implement manual iteration counting using `ai.WithReturnToolRequests(true)` to handle tool calls explicitly
+  - [x] 5.3 Add a loop counter in the flow logic to track the number of tool-calling iterations
+  - [x] 5.4 Break the tool-calling loop after 10 iterations and return the current AI response
+  - [x] 5.5 Add logging to track when step limit is reached for debugging purposes
 
-- [ ] 6.0 Add streaming response support
-  - [ ] 6.1 Verify that `genkit.Handler()` automatically supports streaming (according to the example in `docs/genkit-basic-example.md`)
-  - [ ] 6.2 Add streaming callback using `ai.WithStreaming()` to log chunks during generation (optional for debugging)
-  - [ ] 6.3 Test the `/chatFlow` endpoint with a streaming HTTP client to verify progressive response delivery
-  - [ ] 6.4 Verify that tool calls and tool results are properly included in the streamed response
+- [x] 6.0 Add streaming response support
+  - [x] 6.1 Verify that `genkit.Handler()` automatically supports streaming (according to the example in `docs/genkit-basic-example.md`)
+  - [x] 6.2 Add streaming callback using `ai.WithStreaming()` to log chunks during generation (optional for debugging)
+  - [x] 6.3 Test the `/chatFlow` endpoint with a streaming HTTP client to verify progressive response delivery
+  - [x] 6.4 Verify that tool calls and tool results are properly included in the streamed response
 
 - [ ] 7.0 Testing, documentation, and POC evaluation
   - [ ] 7.1 Test basic chat functionality: send a simple fitness question and verify AI response
