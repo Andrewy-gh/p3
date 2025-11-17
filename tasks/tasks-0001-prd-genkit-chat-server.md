@@ -24,10 +24,10 @@ Generated from: `0001-prd-genkit-chat-server.md`
 ## Tasks
 
 - [ ] 1.0 Set up Go project structure and Genkit dependencies
-  - [ ] 1.1 Create genkit-server directory and initialize Go module with `go mod init`
-  - [ ] 1.2 Install Genkit Go SDK dependencies: `github.com/firebase/genkit/go/genkit`, `github.com/firebase/genkit/go/ai`, `github.com/firebase/genkit/go/plugins/googlegenai`
-  - [ ] 1.3 Create `.env.local` file with `GOOGLE_GENERATIVE_AI_API_KEY` (use same key as backend)
-  - [ ] 1.4 Set up basic server structure in `main.go` with Genkit initialization and HTTP server on port 3400
+  - [x] 1.1 Create genkit-server directory and initialize Go module with `go mod init`
+  - [x] 1.2 Install Genkit Go SDK dependencies: `github.com/firebase/genkit/go/genkit`, `github.com/firebase/genkit/go/ai`, `github.com/firebase/genkit/go/plugins/googlegenai`
+  - [x] 1.3 Create `.env.local` file with `GOOGLE_GENERATIVE_AI_API_KEY` (use same key as backend)
+  - [x] 1.4 Set up basic server structure in `main.go` with Genkit initialization and HTTP server on port 3400
 
 - [ ] 2.0 Implement the generateWorkout tool with proper schema and validation
   - [ ] 2.1 Define Go structs for workout tool input schema matching the PRD requirements (fitnessLevel, fitnessGoal, equipment, sessionDuration, workoutFocus, spaceConstraints, injuries)
