@@ -1,1 +1,16 @@
 .claude
+ai-dev-tasks
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+genkit-server/genkit-server
+
+# Environment files
+*.env.local
+.env.local
+
+*.setenv.sh
