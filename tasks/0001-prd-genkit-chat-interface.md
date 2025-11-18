@@ -95,16 +95,17 @@ The feature will replicate the functionality of the existing `/element-playgroun
 
 ### Error Handling
 
-22. The system must display user-friendly error messages when the Genkit server is unavailable or returns an error
-23. The system must handle network timeouts gracefully
-24. The system must log errors to the console for debugging purposes
+22. The system must display user-friendly error messages when the Genkit server is unavailable or returns an error (without divulging server implementation details)
+23. The system must display a user-friendly rate limit message when the server returns a 429 (Too Many Requests) status code (e.g., "You're sending requests too quickly. Please wait a moment and try again.")
+24. The system must handle network timeouts gracefully
+25. The system must log errors to the console for debugging purposes
 
 ### Styling and Layout
 
-25. The system must use a responsive layout that works on mobile and desktop screens
-26. The system must use Tailwind CSS classes consistent with the existing application design
-27. The system must maintain a max-width container (e.g., `max-w-4xl`) centered on the page
-28. The system must use the application's existing color scheme and typography
+26. The system must use a responsive layout that works on mobile and desktop screens
+27. The system must use Tailwind CSS classes consistent with the existing application design
+28. The system must maintain a max-width container (e.g., `max-w-4xl`) centered on the page
+29. The system must use the application's existing color scheme and typography
 
 ## Non-Goals (Out of Scope)
 
@@ -142,6 +143,57 @@ The feature will replicate the functionality of the existing `/element-playgroun
 
 ## Technical Considerations
 
+### Streaming Support
+
+**Research Finding:** Genkit **fully supports streaming** in Go using the `ai.WithStreaming()` option with a callback function:
+
+```go
+resp, err := genkit.Generate(ctx, g,
+  ai.WithPrompt("Tell me a story"),
+  ai.WithStreaming(func(ctx context.Context, chunk *ai.ModelResponseChunk) error {
+    log.Println(chunk.Text())
+    return nil
+  }),
+)
+```
+
+**Implementation Approach:**
+- The Genkit server currently does not expose streaming via the HTTP endpoint
+- **Option 1 (Recommended for PoC):** Modify the Genkit server to support Server-Sent Events (SSE) for streaming responses
+- **Option 2:** Accept non-streaming responses for the initial proof-of-concept and add streaming later if needed
+
+### Structured Output Support
+
+**Research Finding:** Genkit **fully supports structured output** using Go structs with JSON schema annotations, similar to Zod in AI SDK:
+
+```go
+type WorkoutOutput struct {
+  Exercises    []WorkoutExercise `json:"exercises"`
+  Notes        string            `json:"notes,omitempty"`
+  WorkoutFocus string            `json:"workoutFocus,omitempty"`
+}
+
+output, _, err := genkit.GenerateData[WorkoutOutput](ctx, g,
+  ai.WithPrompt(userInfo),
+  ai.WithSystem(workoutPrompt),
+)
+```
+
+**Current Implementation:** The Genkit server's `chatFlow` already uses `genkit.Generate()` with the workout tool, which returns structured `WorkoutOutput`. However, this structured data is embedded in the response history and needs to be extracted for display.
+
+### Max Turns / Multi-Turn Tool Calling
+
+**Research Finding:** Genkit supports limiting tool call iterations using `ai.WithMaxTurns()`:
+
+```go
+resp, err := genkit.Generate(ctx, g,
+  ai.WithTools(myTool),
+  ai.WithMaxTurns(10), // Limit to 10 iterations (default is 5)
+)
+```
+
+**Current Implementation:** The Genkit server's `chatFlow` is already configured with `ai.WithMaxTurns(10)` (line 417 in `genkit-server/main.go`), matching the TypeScript backend's `stepCountIs(10)` configuration.
+
 ### API Compatibility Challenge
 
 The main technical challenge is that the Genkit server returns a different response format than the AI SDK's `streamText` function:
@@ -156,9 +208,27 @@ The main technical challenge is that the Genkit server returns a different respo
 
 ### Proxy Configuration
 
-- The frontend Vite dev server currently proxies `/api` to `http://localhost:3000` (TypeScript backend)
-- Need to add a proxy rule for `/genkit-api` to `http://localhost:3400` (Genkit server) in `vite.config.ts`
-- Or make direct fetch calls to `http://localhost:3400` (may require CORS configuration on the Go server)
+**Research Finding:** The genkit-server **does not have CORS configuration**. The `server.Start()` function uses a standard `http.ServeMux` without CORS middleware.
+
+**Solution (Recommended for PoC):**
+- Use Vite's proxy configuration to avoid CORS issues (simplest approach for development)
+- Add a proxy rule for `/genkit-api/*` → `http://localhost:3400` in `vite.config.ts`:
+  ```typescript
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/genkit-api': {
+        target: 'http://localhost:3400',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/genkit-api/, ''),
+      },
+    },
+  }
+  ```
+- **Alternative:** Add CORS middleware to the Genkit server if direct calls from frontend are preferred (requires backend modification)
 
 ### Conversation History Management
 
@@ -192,21 +262,52 @@ The main technical challenge is that the Genkit server returns a different respo
 4. **Error rate**: Less than 5% of requests result in errors under normal operating conditions
 5. **Developer evaluation**: The implementation provides sufficient evidence to make a go/no-go decision on migrating to Genkit for production
 
-## Open Questions
+## Resolved Technical Questions
 
-1. **Streaming support**: Does the current Genkit implementation support streaming responses? If so, how should we integrate this with the frontend?
-   - Current Genkit implementation has streaming callback but doesn't expose it via the HTTP endpoint
+Based on research using Genkit documentation and codebase analysis, the following questions have been answered:
 
-2. **Tool output format**: Does the Genkit server include the full workout tool output in the `text` response, or do we need to modify the backend to return structured tool data?
-   - Need to verify the actual response format from Genkit when tools are called
+### 1. Streaming Support ✅ CONFIRMED
 
-3. **Error handling**: What specific error codes/messages does the Genkit server return, and how should we map them to user-friendly messages?
+**Question:** Does the current Genkit implementation support streaming responses?
 
-4. **CORS configuration**: Does the Genkit server need CORS headers configured for direct frontend calls, or should we rely on proxy configuration?
+**Answer:** Yes, Genkit fully supports streaming using `ai.WithStreaming()`. However, the current HTTP endpoint implementation does not expose streaming. For this PoC, we recommend starting with non-streaming responses and optionally adding SSE (Server-Sent Events) support if streaming is critical for evaluation.
 
-5. **Rate limiting feedback**: Should we display rate limit information to users, or is silent server-side enforcement sufficient for this prototype?
+### 2. Structured Output Format ✅ CONFIRMED
 
-6. **Multi-turn tool calling**: How does Genkit handle scenarios where the AI needs to call multiple tools in sequence? Does this work automatically with `maxTurns: 10`?
+**Question:** Does the Genkit server return structured tool data?
 
-7. **Route naming**: Should the route be named `/genkit-chat`, `/genkit-playground`, or something else for clarity?
-   - Recommendation: `/genkit-playground` to match the existing `/playground` and `/element-playground` naming convention
+**Answer:** Yes, Genkit supports structured output via Go structs with JSON schema annotations. The `chatFlow` already uses the `generateWorkout` tool which returns structured `WorkoutOutput`. The tool results are included in the response history and need to be extracted from the `ChatResponse` for UI display.
+
+### 3. Error Handling ✅ IMPLEMENTED
+
+**Question:** What error codes does Genkit return?
+
+**Answer:** The Genkit server returns:
+- `429 Too Many Requests` with JSON: `{"error":"Rate limit exceeded. Maximum 10 requests per minute allowed."}`
+- Standard HTTP error codes for other failures
+
+**Implementation:** Display user-friendly messages without revealing server details (e.g., "Too many requests. Please wait a moment and try again.").
+
+### 4. CORS Configuration ✅ RESOLVED
+
+**Question:** Does the Genkit server need CORS headers?
+
+**Answer:** The genkit-server does not have CORS middleware. **Recommended Solution:** Use Vite's proxy configuration (`/genkit-api` → `http://localhost:3400`) to avoid CORS issues during development. This is simpler for a PoC than modifying the Go server.
+
+### 5. Rate Limiting Feedback ✅ REQUIRED
+
+**Question:** Should we display rate limit information to users?
+
+**Answer:** Yes, user-friendly rate limit messages are essential for good UX. When a 429 status is received, display: "You're sending requests too quickly. Please wait a moment and try again." Do not expose technical details like "10 requests per minute."
+
+### 6. Multi-Turn Tool Calling ✅ CONFIGURED
+
+**Question:** How does Genkit handle multi-turn tool calling?
+
+**Answer:** Genkit automatically handles multi-turn tool calling with `ai.WithMaxTurns()`. The genkit-server is already configured with `maxTurns: 10` (matching the TypeScript backend's `stepCountIs(10)`). This allows the AI to call tools up to 10 times in a single conversation turn.
+
+### 7. Route Naming ✅ DECIDED
+
+**Question:** What should the route be named?
+
+**Answer:** `/genkit-chat` (per user preference). This clearly indicates it's the Genkit-powered chat interface.
