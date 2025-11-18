@@ -48,26 +48,26 @@ type WorkoutOutput struct {
 	WorkoutFocus string            `json:"workoutFocus,omitempty" jsonschema:"description=The focus area of this workout (e.g., push, pull, legs, full body)"`
 }
 
-// Message represents a single message in the conversation history (Task 3.3)
+// Message represents a single message in the conversation history
 type Message struct {
 	Role    string `json:"role" jsonschema:"description=Role of the message sender (user or model)"`
 	Content string `json:"content" jsonschema:"description=Content of the message"`
 }
 
-// ChatInput defines the input schema for the chat flow (Task 3.1)
+// ChatInput defines the input schema for the chat flow
 type ChatInput struct {
 	Message             string    `json:"message" jsonschema:"description=User's current message"`
 	ConversationHistory []Message `json:"conversationHistory,omitempty" jsonschema:"description=Previous messages in the conversation"`
 }
 
-// ChatResponse defines the response schema for the chat flow (Task 3.2)
+// ChatResponse defines the response schema for the chat flow
 type ChatResponse struct {
 	Text          string `json:"text" jsonschema:"description=The AI-generated response text"`
 	HasToolOutput bool   `json:"hasToolOutput" jsonschema:"description=Flag indicating if a tool was called"`
 	ToolName      string `json:"toolName,omitempty" jsonschema:"description=Name of the tool that was called (if any)"`
 }
 
-// RateLimiter implements a simple rate limiter with sliding window (Task 4.3)
+// RateLimiter implements a simple rate limiter with sliding window
 type RateLimiter struct {
 	mu      sync.Mutex
 	clients map[string][]time.Time
@@ -84,7 +84,7 @@ func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
 	}
 }
 
-// Allow checks if a request from the given client should be allowed (Task 4.4)
+// Allow checks if a request from the given client should be allowed
 func (rl *RateLimiter) Allow(clientID string) bool {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
@@ -118,7 +118,7 @@ func (rl *RateLimiter) Allow(clientID string) bool {
 	return true
 }
 
-// getClientIP extracts the client IP from the request (Task 4.2)
+// getClientIP extracts the client IP from the request
 func getClientIP(r *http.Request) string {
 	// Check X-Forwarded-For header first
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
@@ -142,13 +142,12 @@ func getClientIP(r *http.Request) string {
 	return ip
 }
 
-// rateLimitMiddleware wraps an HTTP handler with rate limiting (Task 4.5)
+// rateLimitMiddleware wraps an HTTP handler with rate limiting
 func rateLimitMiddleware(limiter *RateLimiter, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		clientIP := getClientIP(r)
 
 		if !limiter.Allow(clientIP) {
-			// Task 4.6: Return HTTP 429 when limit is exceeded
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusTooManyRequests)
 			fmt.Fprintf(w, `{"error":"Rate limit exceeded. Maximum %d requests per minute allowed."}`, limiter.limit)
@@ -160,7 +159,7 @@ func rateLimitMiddleware(limiter *RateLimiter, next http.HandlerFunc) http.Handl
 	}
 }
 
-// CHAT_AGENT_PROMPT is the system prompt for the chat agent (Task 3.4)
+// CHAT_AGENT_PROMPT is the system prompt for the chat agent
 const CHAT_AGENT_PROMPT = `
 You are Coach Nova, an AI strength coach created by LiftLab. You help users design personalized workout plans by gathering their requirements and generating workouts using the generateWorkout tool.
 
@@ -240,7 +239,7 @@ Coach Nova: "Absolutely! What's your reasoning for the swap - preference, equipm
 </example>
 `
 
-// validateWorkoutInput validates the workout tool input (Task 2.4)
+// validateWorkoutInput validates the workout tool input
 func validateWorkoutInput(input WorkoutToolInput) error {
 	if input.FitnessLevel == "" {
 		return fmt.Errorf("fitnessLevel is required")
@@ -263,7 +262,7 @@ func validateWorkoutInput(input WorkoutToolInput) error {
 	return nil
 }
 
-// generateWorkoutWithAI generates a workout plan using the AI model (Task 2.5)
+// generateWorkoutWithAI generates a workout plan using the AI model
 func generateWorkoutWithAI(ctx context.Context, g *genkit.Genkit, input WorkoutToolInput) (*WorkoutOutput, error) {
 	// Build user info string similar to the TypeScript implementation
 	userInfo := fmt.Sprintf(`
@@ -363,24 +362,22 @@ func main() {
 	log.Println("Genkit initialized successfully")
 	log.Printf("Default model: %s", "googleai/gemini-2.0-flash")
 
-	// Define the generateWorkout tool (Task 2.0)
+	// Define the generateWorkout tool
 	genkit.DefineTool(
 		g, "generateWorkout",
 		"Creates and displays a personalized workout plan. Call this when you have: fitness level, goal, equipment, session duration, workout focus, space/location, and injury status. This displays the workout to the user.",
 		func(ctx *ai.ToolContext, input WorkoutToolInput) (*WorkoutOutput, error) {
-			// Task 2.4: Input validation
 			if err := validateWorkoutInput(input); err != nil {
 				return nil, err
 			}
 
-			// Task 2.5: Generate workout using AI model
 			return generateWorkoutWithAI(ctx, g, input)
 		},
 	)
 
 	log.Println("generateWorkout tool defined successfully")
 
-	// Define the chat flow with conversation history and system prompt (Task 3.5)
+	// Define the chat flow with conversation history and system prompt
 	chatFlow := genkit.DefineFlow(g, "chatFlow", func(ctx context.Context, input *ChatInput) (*ChatResponse, error) {
 		// Validate input
 		if input == nil {
@@ -390,7 +387,7 @@ func main() {
 			return nil, fmt.Errorf("message cannot be empty")
 		}
 
-		// Task 3.6: Build messages array with conversation history
+		// Build messages array with conversation history
 		var messages []*ai.Message
 
 		// Add conversation history
@@ -411,18 +408,14 @@ func main() {
 		// Add current user message
 		messages = append(messages, ai.NewUserMessage(ai.NewTextPart(input.Message)))
 
-		// Task 3.7: Generate response using Gemini 2.0 Flash model
-		// Task 3.8: Register the generateWorkout tool with the chat flow
-		// Task 5.0: Limit tool-calling iterations to max 10 turns
-		// Task 6.2: Add streaming callback for debugging
+		// Generate response using Gemini 2.0 Flash with workout tool and streaming
 		resp, err := genkit.Generate(ctx, g,
 			ai.WithSystem(CHAT_AGENT_PROMPT),
 			ai.WithMessages(messages...),
 			ai.WithModelName("googleai/gemini-2.0-flash"),
 			ai.WithTools(genkit.LookupTool(g, "generateWorkout")),
-			ai.WithMaxTurns(10), // Task 5.1: Use built-in maxTurns parameter
+			ai.WithMaxTurns(10),
 			ai.WithStreaming(func(ctx context.Context, chunk *ai.ModelResponseChunk) error {
-				// Log streaming chunks for debugging (Task 6.2)
 				if text := chunk.Text(); text != "" {
 					log.Printf("Streaming chunk: %s", text)
 				}
@@ -433,7 +426,7 @@ func main() {
 			return nil, fmt.Errorf("failed to generate response: %w", err)
 		}
 
-		// Task 3.9: Detect tool usage and populate hasToolOutput/toolName
+		// Detect tool usage and populate hasToolOutput/toolName
 		var hasToolOutput bool
 		var toolName string
 		var toolCallCount int
@@ -459,7 +452,6 @@ func main() {
 			}
 		}
 
-		// Task 5.5: Log when step limit is reached
 		if toolCallCount >= 10 {
 			log.Printf("Warning: Maximum tool-calling iterations (10) reached for this request")
 		}
@@ -476,7 +468,7 @@ func main() {
 
 	log.Println("chatFlow defined successfully")
 
-	// Create rate limiter: 10 requests per minute per client (Task 4.0)
+	// Create rate limiter: 10 requests per minute per client
 	rateLimiter := NewRateLimiter(10, time.Minute)
 	log.Println("Rate limiter initialized: 10 requests per minute per client")
 
