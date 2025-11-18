@@ -31,6 +31,11 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
+      '/genkit-api': {
+        target: 'http://localhost:3400',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/genkit-api/, ''),
+      },
     },
   },
 });
