@@ -4,11 +4,11 @@ Generated from: `0001-prd-genkit-chat-server.md`
 
 ## Relevant Files
 
-- `genkit-server/main.go` - Main entry point for the Genkit Go server
-- `genkit-server/go.mod` - Go module dependencies
-- `genkit-server/go.sum` - Go dependency checksums
-- `genkit-server/.env.local` - Environment configuration (GOOGLE_GENERATIVE_AI_API_KEY)
-- `genkit-server/README.md` - Documentation for running and testing the Genkit server
+- `genkit-server/main.go` - Main entry point for the Genkit Go server (✅ Complete)
+- `genkit-server/go.mod` - Go module dependencies (✅ Complete)
+- `genkit-server/go.sum` - Go dependency checksums (✅ Complete)
+- `genkit-server/.env.local` - Environment configuration (GOOGLE_GENERATIVE_AI_API_KEY) (✅ Complete)
+- `genkit-server/README.md` - Documentation for running and testing the Genkit server (✅ Complete)
 - `backend/src/routes/playground.ts` - Reference implementation of v2 endpoint (existing)
 - `backend/src/tools.ts` - Reference tool implementations (existing)
 - `backend/src/prompts.ts` - System prompts to replicate (existing)
@@ -69,14 +69,14 @@ Generated from: `0001-prd-genkit-chat-server.md`
   - [x] 6.3 Test the `/chatFlow` endpoint with a streaming HTTP client to verify progressive response delivery
   - [x] 6.4 Verify that tool calls and tool results are properly included in the streamed response
 
-- [ ] 7.0 Testing, documentation, and POC evaluation
-  - [ ] 7.1 Test basic chat functionality: send a simple fitness question and verify AI response
-  - [ ] 7.2 Test workout generation: send a prompt requesting a workout plan and verify the generateWorkout tool is called
-  - [ ] 7.3 Test conversation history: send multiple messages and verify context is maintained across turns
-  - [ ] 7.4 Test rate limiting: write a script to send >10 requests in 60 seconds and verify HTTP 429 is returned
-  - [ ] 7.5 Test step limiting: craft a scenario that triggers multiple tool calls and verify it stops at 10 iterations
-  - [ ] 7.6 Test streaming: verify partial responses are delivered progressively using curl or a streaming client
-  - [ ] 7.7 Test error handling: send invalid inputs and verify appropriate error responses
-  - [ ] 7.8 Create README.md with setup instructions (Go installation, dependency installation, environment setup)
-  - [ ] 7.9 Add testing commands to README.md (example curl commands, how to use Genkit Dev UI)
-  - [ ] 7.10 Document POC findings: developer experience, feature completeness comparison with v2 endpoint, performance observations, Genkit limitations discovered, and migration feasibility recommendation
+- [x] 7.0 Testing, documentation, and POC evaluation
+  - [x] 7.1 Test basic chat functionality: send a simple fitness question and verify AI response
+  - [x] 7.2 Test workout generation: send a prompt requesting a workout plan and verify the generateWorkout tool is called
+  - [x] 7.3 Test conversation history: send multiple messages and verify context is maintained across turns
+  - [x] 7.4 Test rate limiting: write a script to send >10 requests in 60 seconds and verify HTTP 429 is returned
+  - [x] 7.5 Test step limiting: craft a scenario that triggers multiple tool calls and verify it stops at 10 iterations
+  - [x] 7.6 Test streaming: verify partial responses are delivered progressively using curl or a streaming client
+  - [x] 7.7 Test error handling: send invalid inputs and verify appropriate error responses
+  - [x] 7.8 Create README.md with setup instructions (Go installation, dependency installation, environment setup)
+  - [x] 7.9 Add testing commands to README.md (example curl commands, how to use Genkit Dev UI)
+  - [x] 7.10 Document POC findings: developer experience, feature completeness comparison with v2 endpoint, performance observations, Genkit limitations discovered, and migration feasibility recommendation

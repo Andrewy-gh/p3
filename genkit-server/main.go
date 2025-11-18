@@ -69,10 +69,10 @@ type ChatResponse struct {
 
 // RateLimiter implements a simple rate limiter with sliding window (Task 4.3)
 type RateLimiter struct {
-	mu       sync.Mutex
-	clients  map[string][]time.Time
-	limit    int
-	window   time.Duration
+	mu      sync.Mutex
+	clients map[string][]time.Time
+	limit   int
+	window  time.Duration
 }
 
 // NewRateLimiter creates a new rate limiter
@@ -349,9 +349,9 @@ func main() {
 	ctx := context.Background()
 
 	// Load environment variables
-	apiKey := os.Getenv("GOOGLE_GENERATIVE_AI_API_KEY")
+	apiKey := os.Getenv("GOOGLE_API_KEY")
 	if apiKey == "" {
-		log.Fatal("GOOGLE_GENERATIVE_AI_API_KEY environment variable is not set")
+		log.Fatal("GOOGLE_API_KEY environment variable is not set")
 	}
 
 	// Initialize Genkit with the Google AI plugin

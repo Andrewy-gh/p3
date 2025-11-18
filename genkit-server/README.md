@@ -21,19 +21,23 @@ This POC implements a feature-complete chat server using Genkit Go that replicat
 - **Request Schema**:
   ```json
   {
-    "message": "I want to build muscle",
-    "conversationHistory": [
-      {"role": "user", "content": "Hello"},
-      {"role": "model", "content": "Hi! How can I help you today?"}
-    ]
+    "data": {
+      "message": "I want to build muscle",
+      "conversationHistory": [
+        {"role": "user", "content": "Hello"},
+        {"role": "model", "content": "Hi! How can I help you today?"}
+      ]
+    }
   }
   ```
 - **Response Schema**:
   ```json
   {
-    "text": "AI response text",
-    "hasToolOutput": false,
-    "toolName": ""
+    "result": {
+      "text": "AI response text",
+      "hasToolOutput": false,
+      "toolName": ""
+    }
   }
   ```
 
@@ -65,7 +69,7 @@ This POC implements a feature-complete chat server using Genkit Go that replicat
 ## Prerequisites
 
 - Go 1.21 or later
-- Google Generative AI API key (same as used by the backend)
+- Google API key (same as used by the backend)
 
 ## Setup Instructions
 
@@ -81,13 +85,32 @@ go mod download
 Create a `.env.local` file in the `genkit-server` directory:
 
 ```bash
-GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+GOOGLE_API_KEY=your_api_key_here
 ```
 
-Or export the environment variable:
+**For Windows (Git Bash/MINGW):**
+
+Create a `setenv.sh` script in the `genkit-server` directory to load environment variables:
 
 ```bash
-export GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+#!/bin/bash
+# setenv.sh - Load environment variables from .env.local
+
+if [ -f .env.local ]; then
+    export $(grep -v '^#' .env.local | xargs)
+    echo "Environment variables loaded from .env.local"
+else
+    echo "Error: .env.local file not found"
+    exit 1
+fi
+```
+
+**For Unix/Linux/Mac:**
+
+You can export the environment variable directly:
+
+```bash
+export GOOGLE_API_KEY=your_api_key_here
 ```
 
 ### 3. Build the Server
@@ -98,18 +121,29 @@ go build -o genkit-chat-server .
 
 ### 4. Run the Server
 
-```bash
-# Load environment variables and run
-source .env.local  # On Unix/Linux/Mac
-# or
-set -a; source .env.local; set +a  # On Unix/Linux/Mac (alternative)
+**Windows (Git Bash/MINGW):**
 
+```bash
+# Load environment variables from setenv.sh
+source setenv.sh
+
+# Run the compiled server
 ./genkit-chat-server
+
+# Or run directly without building
+go run main.go
 ```
 
-Or run directly without building:
+**Unix/Linux/Mac:**
 
 ```bash
+# Export environment variable
+export GOOGLE_API_KEY=your_api_key_here
+
+# Run the compiled server
+./genkit-chat-server
+
+# Or run directly without building
 go run main.go
 ```
 
@@ -117,57 +151,122 @@ The server will start on `http://localhost:3400`.
 
 ## Testing Commands
 
+### Automated Testing
+
+Run all tests automatically with the test script:
+
+```bash
+cd genkit-server
+./test.sh
+```
+
+The test script will:
+- Test health check endpoint
+- Test basic chat functionality
+- Test workout generation (tool calling)
+- Test conversation history
+- Test rate limiting (10 req/min)
+- Test error handling (empty/missing messages)
+- Provide a summary of passed/failed tests
+
+### Manual Testing
+
+> **Note for Windows users**: The commands below use Unix-style single quotes. On Windows (Git Bash/MINGW), use double quotes and escape inner quotes as shown in the Windows-specific examples.
+
 ### Basic Chat (Task 7.1)
 
 Test basic conversational interaction:
 
+**Unix/Linux/Mac:**
 ```bash
 curl -X POST http://localhost:3400/chatFlow \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "What are the benefits of strength training?"
+    "data": {
+      "message": "What are the benefits of strength training?"
+    }
   }'
+```
+
+**Windows (Git Bash/MINGW):**
+```bash
+curl -X POST http://localhost:3400/chatFlow \
+  -H "Content-Type: application/json" \
+  -d "{\"data\": {\"message\": \"What are the benefits of strength training?\"}}"
 ```
 
 ### Workout Generation (Task 7.2)
 
 Test workout generation tool calling:
 
+**Unix/Linux/Mac:**
 ```bash
 curl -X POST http://localhost:3400/chatFlow \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "I want a 30-minute beginner workout at home with no equipment for general fitness"
+    "data": {
+      "message": "I want a 30-minute beginner workout at home with no equipment for general fitness"
+    }
   }'
+```
+
+**Windows (Git Bash/MINGW):**
+```bash
+curl -X POST http://localhost:3400/chatFlow \
+  -H "Content-Type: application/json" \
+  -d "{\"data\": {\"message\": \"I want a 30-minute beginner workout at home with no equipment for general fitness\"}}"
 ```
 
 ### Conversation History (Task 7.3)
 
 Test multi-turn conversation:
 
+**Unix/Linux/Mac:**
 ```bash
 curl -X POST http://localhost:3400/chatFlow \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "Can you increase the duration?",
-    "conversationHistory": [
-      {"role": "user", "content": "I want a 30-minute beginner workout"},
-      {"role": "model", "content": "I need more details..."}
-    ]
+    "data": {
+      "message": "Can you increase the duration?",
+      "conversationHistory": [
+        {"role": "user", "content": "I want a 30-minute beginner workout"},
+        {"role": "model", "content": "I need more details..."}
+      ]
+    }
   }'
+```
+
+**Windows (Git Bash/MINGW):**
+```bash
+curl -X POST http://localhost:3400/chatFlow \
+  -H "Content-Type: application/json" \
+  -d "{\"data\": {\"message\": \"Can you increase the duration?\", \"conversationHistory\": [{\"role\": \"user\", \"content\": \"I want a 30-minute beginner workout\"}, {\"role\": \"model\", \"content\": \"I need more details...\"}]}}"
 ```
 
 ### Rate Limiting Test (Task 7.4)
 
 Test rate limiting with multiple requests:
 
+**Unix/Linux/Mac:**
 ```bash
 # Send 11 requests in quick succession
 for i in {1..11}; do
   echo "Request $i:"
   curl -X POST http://localhost:3400/chatFlow \
     -H "Content-Type: application/json" \
-    -d '{"message": "Hello"}' \
+    -d '{"data": {"message": "Hello"}}' \
+    -w "\nHTTP Status: %{http_code}\n\n"
+done
+```
+
+**Windows (Git Bash/MINGW):**
+```bash
+# Send 11 requests in quick succession
+for i in {1..11}; do
+  echo "Request $i:"
+  curl -X POST http://localhost:3400/chatFlow \
+    -H "Content-Type: application/json" \
+    -d "{\"data\": {\"message\": \"Hello\"}}" \
     -w "\nHTTP Status: %{http_code}\n\n"
 done
 ```
@@ -178,16 +277,30 @@ Expected: First 10 requests succeed, 11th returns HTTP 429.
 
 Test with invalid input:
 
+**Unix/Linux/Mac:**
 ```bash
 # Empty message
 curl -X POST http://localhost:3400/chatFlow \
   -H "Content-Type: application/json" \
-  -d '{"message": ""}'
+  -d '{"data": {"message": ""}}'
 
 # Missing message field
 curl -X POST http://localhost:3400/chatFlow \
   -H "Content-Type: application/json" \
-  -d '{}'
+  -d '{"data": {}}'
+```
+
+**Windows (Git Bash/MINGW):**
+```bash
+# Empty message
+curl -X POST http://localhost:3400/chatFlow \
+  -H "Content-Type: application/json" \
+  -d "{\"data\": {\"message\": \"\"}}"
+
+# Missing message field
+curl -X POST http://localhost:3400/chatFlow \
+  -H "Content-Type: application/json" \
+  -d "{\"data\": {}}"
 ```
 
 ### Health Check
@@ -327,7 +440,10 @@ genkit-server/
 ├── main.go              # Main server implementation
 ├── go.mod               # Go module dependencies
 ├── go.sum               # Dependency checksums
+├── test.sh              # Automated test script
+├── setenv.sh            # Environment variable loader (Windows)
 ├── .env.local           # Environment configuration (not in git)
+├── .gitignore           # Git ignore rules
 └── README.md            # This file
 ```
 
