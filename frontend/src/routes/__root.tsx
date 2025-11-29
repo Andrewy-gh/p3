@@ -14,6 +14,10 @@ const RootLayout = () => (
         Home
       </Link>
       <span>•</span>
+      <Link to="/genkit-chat" className="[&.active]:font-bold">
+        Genkit Chat
+      </Link>
+      <span>•</span>
       <Link to="/element-playground" className="[&.active]:font-bold">
         Element Playground
       </Link>

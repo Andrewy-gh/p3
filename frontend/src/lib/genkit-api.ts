@@ -102,13 +102,18 @@ export interface GenkitError {
  * Custom error class for Genkit API errors
  */
 export class GenkitApiError extends Error {
+  public statusCode?: number;
+  public originalError?: unknown;
+
   constructor(
     message: string,
-    public statusCode?: number,
-    public originalError?: unknown
+    statusCode?: number,
+    originalError?: unknown
   ) {
     super(message);
     this.name = 'GenkitApiError';
+    this.statusCode = statusCode;
+    this.originalError = originalError;
   }
 }
 
