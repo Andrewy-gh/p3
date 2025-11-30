@@ -36,6 +36,7 @@ export interface ChatResponse {
   text: string;
   hasToolOutput: boolean;
   toolName?: string;
+  toolOutputData?: WorkoutOutput | unknown;
 }
 
 /**
@@ -200,8 +201,26 @@ export async function sendChatMessage(
  * @returns Parsed workout output or null if not found
  */
 export function parseWorkoutFromResponse(
-  responseText: string
+  responseText: string,
+  toolOutputData?: unknown
 ): WorkoutOutput | null {
+  // Priority 1: Use structured tool output if available
+  if (toolOutputData && typeof toolOutputData === 'object') {
+    try {
+      const workout = toolOutputData as WorkoutOutput;
+      if (workout.exercises && Array.isArray(workout.exercises)) {
+        console.log('✓ Using structured tool output data');
+        return workout;
+      }
+    } catch (error) {
+      console.warn(
+        'Failed to parse toolOutputData, falling back to text parsing:',
+        error
+      );
+    }
+  }
+
+  // Priority 2: Fall back to regex parsing from text (backward compatibility)
   try {
     // Try to find JSON in the response text
     const jsonMatch = responseText.match(/\{[\s\S]*"exercises"[\s\S]*\}/);
@@ -209,6 +228,7 @@ export function parseWorkoutFromResponse(
       const parsed = JSON.parse(jsonMatch[0]) as WorkoutOutput;
       // Validate it has the expected structure
       if (parsed.exercises && Array.isArray(parsed.exercises)) {
+        console.log('✓ Parsed workout from response text');
         return parsed;
       }
     }

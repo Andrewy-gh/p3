@@ -90,7 +90,10 @@ function RouteComponent() {
       // Parse workout data if tool was called
       let workoutData: WorkoutOutput | null = null;
       if (response.hasToolOutput && response.toolName === 'generateWorkout') {
-        workoutData = parseWorkoutFromResponse(response.text);
+        workoutData = parseWorkoutFromResponse(
+          response.text,
+          response.toolOutputData
+        );
       }
 
       // Add assistant message to UI
