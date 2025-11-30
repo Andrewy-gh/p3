@@ -485,15 +485,15 @@ func main() {
 
 		responseText := resp.Text()
 
-		// Embed JSON in text for backward compatibility
+		// The frontend uses toolOutputData directly for structured rendering.
+		// We don't append JSON to responseText as that would cause duplication
+		// (the workout would appear as both raw JSON text and rendered component).
 		if toolOutputData != nil {
 			workoutJSON, err := json.Marshal(toolOutputData)
 			if err != nil {
 				log.Printf("Warning: Failed to marshal workout data: %v", err)
 			} else {
-				// Append JSON to response text so existing frontend parsing works
-				responseText = responseText + "\n\n" + string(workoutJSON)
-				log.Printf("Appended workout JSON to response text (%d bytes)", len(workoutJSON))
+				log.Printf("Tool output data available (%d bytes) - using structured output", len(workoutJSON))
 			}
 		}
 
