@@ -1,10 +1,3 @@
-/**
- * TypeScript types and API utilities for Genkit server integration
- *
- * This file defines the API contract between the frontend and the Go-based Genkit server.
- * The Genkit server runs on port 3400 and provides a /chatFlow endpoint for fitness coaching.
- */
-
 // ===========================
 // Request/Response Types
 // ===========================
