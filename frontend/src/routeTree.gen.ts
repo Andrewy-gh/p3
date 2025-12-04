@@ -14,6 +14,7 @@ import { Route as SystemPromptsRouteImport } from './routes/system-prompts'
 import { Route as StreamTextToUiRouteImport } from './routes/stream-text-to-ui'
 import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as PassingImagsAndFilesRouteImport } from './routes/passing-imags-and-files'
+import { Route as GenkitChatRouteImport } from './routes/genkit-chat'
 import { Route as ElementPlaygroundRouteImport } from './routes/element-playground'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -42,6 +43,11 @@ const PassingImagsAndFilesRoute = PassingImagsAndFilesRouteImport.update({
   path: '/passing-imags-and-files',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GenkitChatRoute = GenkitChatRouteImport.update({
+  id: '/genkit-chat',
+  path: '/genkit-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ElementPlaygroundRoute = ElementPlaygroundRouteImport.update({
   id: '/element-playground',
   path: '/element-playground',
@@ -56,6 +62,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/element-playground': typeof ElementPlaygroundRoute
+  '/genkit-chat': typeof GenkitChatRoute
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/playground': typeof PlaygroundRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/element-playground': typeof ElementPlaygroundRoute
+  '/genkit-chat': typeof GenkitChatRoute
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/playground': typeof PlaygroundRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/element-playground': typeof ElementPlaygroundRoute
+  '/genkit-chat': typeof GenkitChatRoute
   '/passing-imags-and-files': typeof PassingImagsAndFilesRoute
   '/playground': typeof PlaygroundRoute
   '/stream-text-to-ui': typeof StreamTextToUiRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/element-playground'
+    | '/genkit-chat'
     | '/passing-imags-and-files'
     | '/playground'
     | '/stream-text-to-ui'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/element-playground'
+    | '/genkit-chat'
     | '/passing-imags-and-files'
     | '/playground'
     | '/stream-text-to-ui'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/element-playground'
+    | '/genkit-chat'
     | '/passing-imags-and-files'
     | '/playground'
     | '/stream-text-to-ui'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ElementPlaygroundRoute: typeof ElementPlaygroundRoute
+  GenkitChatRoute: typeof GenkitChatRoute
   PassingImagsAndFilesRoute: typeof PassingImagsAndFilesRoute
   PlaygroundRoute: typeof PlaygroundRoute
   StreamTextToUiRoute: typeof StreamTextToUiRoute
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PassingImagsAndFilesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/genkit-chat': {
+      id: '/genkit-chat'
+      path: '/genkit-chat'
+      fullPath: '/genkit-chat'
+      preLoaderRoute: typeof GenkitChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/element-playground': {
       id: '/element-playground'
       path: '/element-playground'
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ElementPlaygroundRoute: ElementPlaygroundRoute,
+  GenkitChatRoute: GenkitChatRoute,
   PassingImagsAndFilesRoute: PassingImagsAndFilesRoute,
   PlaygroundRoute: PlaygroundRoute,
   StreamTextToUiRoute: StreamTextToUiRoute,

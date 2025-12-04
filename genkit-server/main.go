@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -62,9 +63,10 @@ type ChatInput struct {
 
 // ChatResponse defines the response schema for the chat flow
 type ChatResponse struct {
-	Text          string `json:"text" jsonschema:"description=The AI-generated response text"`
-	HasToolOutput bool   `json:"hasToolOutput" jsonschema:"description=Flag indicating if a tool was called"`
-	ToolName      string `json:"toolName,omitempty" jsonschema:"description=Name of the tool that was called (if any)"`
+	Text           string      `json:"text" jsonschema:"description=The AI-generated response text"`
+	HasToolOutput  bool        `json:"hasToolOutput" jsonschema:"description=Flag indicating if a tool was called"`
+	ToolName       string      `json:"toolName,omitempty" jsonschema:"description=Name of the tool that was called (if any)"`
+	ToolOutputData interface{} `json:"toolOutputData,omitempty" jsonschema:"description=Structured output from the tool (if any)"`
 }
 
 // RateLimiter implements a simple rate limiter with sliding window
@@ -377,6 +379,25 @@ func main() {
 
 	log.Println("generateWorkout tool defined successfully")
 
+	// extractToolOutput extracts the structured output from tool responses in the message history
+	extractToolOutput := func(history []*ai.Message, toolName string) interface{} {
+		var lastOutput interface{}
+		for _, msg := range history {
+			if msg.Role == ai.RoleTool {
+				for _, part := range msg.Content {
+					if part.IsToolResponse() {
+						toolResp := part.ToolResponse
+						if toolResp != nil && toolResp.Name == toolName {
+							lastOutput = toolResp.Output
+							log.Printf("Found tool output for %s", toolName)
+						}
+					}
+				}
+			}
+		}
+		return lastOutput
+	}
+
 	// Define the chat flow with conversation history and system prompt
 	chatFlow := genkit.DefineFlow(g, "chatFlow", func(ctx context.Context, input *ChatInput) (*ChatResponse, error) {
 		// Validate input
@@ -456,13 +477,34 @@ func main() {
 			log.Printf("Warning: Maximum tool-calling iterations (10) reached for this request")
 		}
 
+		// Extract structured tool output if a tool was called
+		var toolOutputData interface{}
+		if hasToolOutput && toolName == "generateWorkout" {
+			toolOutputData = extractToolOutput(history, toolName)
+		}
+
 		responseText := resp.Text()
-		log.Printf("Chat response generated (hasToolOutput=%v, toolName=%s)", hasToolOutput, toolName)
+
+		// The frontend uses toolOutputData directly for structured rendering.
+		// We don't append JSON to responseText as that would cause duplication
+		// (the workout would appear as both raw JSON text and rendered component).
+		if toolOutputData != nil {
+			workoutJSON, err := json.Marshal(toolOutputData)
+			if err != nil {
+				log.Printf("Warning: Failed to marshal workout data: %v", err)
+			} else {
+				log.Printf("Tool output data available (%d bytes) - using structured output", len(workoutJSON))
+			}
+		}
+
+		log.Printf("Chat response generated (hasToolOutput=%v, toolName=%s, hasToolData=%v)",
+			hasToolOutput, toolName, toolOutputData != nil)
 
 		return &ChatResponse{
-			Text:          responseText,
-			HasToolOutput: hasToolOutput,
-			ToolName:      toolName,
+			Text:           responseText,
+			HasToolOutput:  hasToolOutput,
+			ToolName:       toolName,
+			ToolOutputData: toolOutputData,
 		}, nil
 	})
 
