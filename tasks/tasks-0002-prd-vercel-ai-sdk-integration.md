@@ -4,7 +4,7 @@ Generated from: `0002-prd-vercel-ai-sdk-integration.md`
 
 ## Relevant Files
 
-- `genkit-server/main.go` - Go backend server handling Genkit flows; needs new SSE streaming endpoint
+- `genkit-server/main.go` - Go backend server handling Genkit flows; POC SSE streaming endpoint added at line 516 (chatFlowStreamPOCHandler)
 - `frontend/src/routes/genkit-chat.tsx` - Existing chat route with manual state management (preserve unchanged)
 - `frontend/src/routes/genkit-chat-stream.tsx` - New streaming route to be created with useChat hook
 - `frontend/src/lib/genkit-api.ts` - API client utilities; existing types may be reused
@@ -31,10 +31,10 @@ Generated from: `0002-prd-vercel-ai-sdk-integration.md`
 ## Tasks
 
 - [ ] 1.0 Research & POC: Vercel AI SDK Integration
-  - [ ] 1.1 Study Vercel AI SDK documentation (useChat hook, streaming protocol, event types)
-  - [ ] 1.2 Study Genkit Go streaming API (`ai.WithStreaming()` callback pattern)
-  - [ ] 1.3 Review AI SDK stream protocol specification (https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol)
-  - [ ] 1.4 Create minimal POC SSE endpoint in `genkit-server/main.go` (simple text streaming only)
+  - [x] 1.1 Study Vercel AI SDK documentation (useChat hook, streaming protocol, event types)
+  - [x] 1.2 Study Genkit Go streaming API (`ai.WithStreaming()` callback pattern)
+  - [x] 1.3 Review AI SDK stream protocol specification (https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol)
+  - [x] 1.4 Create minimal POC SSE endpoint in `genkit-server/main.go` (simple text streaming only)
   - [ ] 1.5 Create minimal POC frontend route `genkit-chat-stream-poc.tsx` with useChat hook
   - [ ] 1.6 Test basic text streaming in POC (simple "hello world" responses)
   - [ ] 1.7 Test tool calling integration in POC (generateWorkout with streaming)

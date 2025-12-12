@@ -510,6 +510,76 @@ func main() {
 
 	log.Println("chatFlow defined successfully")
 
+	// POC SSE streaming endpoint handler
+	// This is a minimal proof-of-concept for Server-Sent Events (SSE) streaming
+	// using the Vercel AI SDK stream protocol format
+	chatFlowStreamPOCHandler := func(w http.ResponseWriter, r *http.Request) {
+		// Set required SSE headers for Vercel AI SDK compatibility
+		// Content-Type: text/event-stream enables SSE streaming
+		// x-vercel-ai-ui-message-stream: v1 signals AI SDK protocol version
+		// Cache-Control: no-cache prevents response caching
+		// Connection: keep-alive maintains persistent connection for streaming
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("x-vercel-ai-ui-message-stream", "v1")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+
+		// Get the http.Flusher interface to enable real-time streaming
+		// Flusher sends buffered data to the client immediately
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			http.Error(w, "Streaming not supported", http.StatusInternalServerError)
+			return
+		}
+
+		log.Println("POC SSE stream started")
+
+		// Simple POC: Stream "Hello from SSE!" word by word
+		// This demonstrates the AI SDK text-delta event format
+		words := []string{"Hello", "from", "SSE!"}
+		textID := "text_poc_001"
+
+		// Send text-start event to begin text streaming
+		// Format: data: {JSON}\n\n (two newlines required for SSE)
+		startEvent := fmt.Sprintf(`data: {"type":"text-start","id":"%s"}`, textID)
+		fmt.Fprintf(w, "%s\n\n", startEvent)
+		flusher.Flush()
+
+		// Stream each word as a text-delta event
+		for i, word := range words {
+			// Add space before each word except the first
+			if i > 0 {
+				word = " " + word
+			}
+
+			// Send text-delta event with incremental content
+			// The "delta" field contains the new text chunk
+			deltaEvent := fmt.Sprintf(`data: {"type":"text-delta","id":"%s","delta":"%s"}`, textID, word)
+			fmt.Fprintf(w, "%s\n\n", deltaEvent)
+			flusher.Flush()
+
+			// Add small delay to simulate real streaming (300ms between words)
+			time.Sleep(300 * time.Millisecond)
+		}
+
+		// Send text-end event to signal text completion
+		endEvent := fmt.Sprintf(`data: {"type":"text-end","id":"%s"}`, textID)
+		fmt.Fprintf(w, "%s\n\n", endEvent)
+		flusher.Flush()
+
+		// Send finish event to signal message completion
+		finishEvent := `data: {"type":"finish"}`
+		fmt.Fprintf(w, "%s\n\n", finishEvent)
+		flusher.Flush()
+
+		// Send [DONE] marker to signal stream termination
+		// This is required by the AI SDK protocol
+		fmt.Fprintf(w, "data: [DONE]\n\n")
+		flusher.Flush()
+
+		log.Println("POC SSE stream completed")
+	}
+
 	// Create rate limiter: 10 requests per minute per client
 	rateLimiter := NewRateLimiter(10, time.Minute)
 	log.Println("Rate limiter initialized: 10 requests per minute per client")
@@ -520,6 +590,9 @@ func main() {
 	// Register the chatFlow endpoint with rate limiting middleware
 	mux.HandleFunc("POST /chatFlow", rateLimitMiddleware(rateLimiter, genkit.Handler(chatFlow)))
 
+	// Register the POC SSE streaming endpoint with rate limiting middleware
+	mux.HandleFunc("POST /chatFlow/stream", rateLimitMiddleware(rateLimiter, chatFlowStreamPOCHandler))
+
 	// Health check endpoint
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -529,6 +602,7 @@ func main() {
 	log.Println("Starting server on http://localhost:3400")
 	log.Println("Health check available at: GET http://localhost:3400/health")
 	log.Println("Chat flow available at: POST http://localhost:3400/chatFlow")
+	log.Println("POC SSE streaming available at: POST http://localhost:3400/chatFlow/stream")
 
 	if err := server.Start(ctx, "127.0.0.1:3400", mux); err != nil {
 		log.Fatal(err)
